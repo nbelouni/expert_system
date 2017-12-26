@@ -28,6 +28,10 @@ typedef enum	e_lexem
 	ENDL
 }				t_lexem;
 
+#include "Operand.hpp"
+#include "Token.hpp"
+#include "Expression.hpp"
+#include "Rule.hpp"
 #include "LexerParser.hpp"
 
 #endif
