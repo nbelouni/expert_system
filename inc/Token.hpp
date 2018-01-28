@@ -3,6 +3,8 @@
 
 #include "expertSystem.hpp"
 
+class Operand;
+
 class Token
 {
 	private:

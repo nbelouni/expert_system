@@ -2,29 +2,33 @@
 # define RULE_HPP
 
 /*
- *	REVOIR CETTE CLASSE ET EXPRESSION : CHOISIR + CLEAN
- *	(REVOIR AUSSI Operand.hpp)
- *
+ *	class Expression removed
  */
+
+#include "expertSystem.hpp"
 
 class Rule
 {
 	private:
-		std::vector<Token>	_antecedent;
-		std::vector<Token>	_consequent;
+		std::vector<Token>	_antecedents;
+		std::vector<Token>	_consequents;
 
 	public:
 		Rule();
 		Rule(Rule const &);
 		~Rule();
 
-		getAllAntecedent();
-		getAntecedent(int);
-		addAntecedent(Token const &);
+		Rule				&operator=(Rule const &);
+		std::vector<Token> const	&getAllAntecedents() const ;
+		Token				*getAntecedent(int);
+		void				addAntecedent(Token const &);
 
-		getAllConsequent();
-		getConsequent(int);
-		addConsequent(Token const &);
-}
+		std::vector<Token> const &getAllConsequents() const ;
+		Token				*getConsequent(int);
+		void				addConsequent(Token const &);
+
+		bool	Resolve();
+		void	Assign();
+};
 
 #endif

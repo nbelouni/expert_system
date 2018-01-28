@@ -30,8 +30,32 @@ typedef enum	e_lexem
 
 #include "Operand.hpp"
 #include "Token.hpp"
-#include "Expression.hpp"
 #include "Rule.hpp"
 #include "LexerParser.hpp"
+
+class Rule;
+
+class ExpertSystem
+{
+	private:
+		std::vector<Operand>	_operands;
+		std::vector<Rule>		_rules;
+
+	public:
+		ExpertSystem();
+		ExpertSystem(ExpertSystem const &);
+		~ExpertSystem();
+
+		ExpertSystem				&operator=(ExpertSystem const &rhs);
+
+		const std::vector<Operand>	&getAllOperands() const;
+		Operand						*findOperand(const char);
+		Operand						*getOperand(int i);
+		void						addOperand(const Operand &);
+
+		std::vector<Rule>	const	&getAllRules() const ;
+		Rule						*getRule(int i);
+		void						addRule(const Rule &);
+};
 
 #endif

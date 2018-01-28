@@ -12,6 +12,7 @@ int main(int argc, char **argv)
 		{
 			LexerParser tmp;
 			tmp.Lexer(argv[1]);
+			tmp.Parser();
 		}
 	}
 	catch(std::exception &e)

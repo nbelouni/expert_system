@@ -3,6 +3,8 @@
 
 #include "expertSystem.hpp"
 
+class ExpertSystem;
+
 class LexerParser
 {
 	typedef	std::vector<std::pair<std::string, t_lexem>> t_vector;
@@ -23,7 +25,7 @@ class LexerParser
 		void			printLexedFile();
 
 		void			Lexer(char const *fileName);
-//		ExpertSystem	Parser();
+		ExpertSystem	Parser();
 
 		class	InvalidLineException : public std::exception
 		{

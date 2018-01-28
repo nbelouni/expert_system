@@ -3,7 +3,7 @@
 
 #include "expertSystem.hpp"
 
-typedef int Token;
+class Token;
 
 class Operand
 {
