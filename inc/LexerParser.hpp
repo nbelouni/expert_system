@@ -25,6 +25,8 @@ class LexerParser
 		void			printLexedFile();
 
 		void			Lexer(char const *fileName);
+
+		t_lexem			findNextLexem(t_vector::iterator i);
 		ExpertSystem	Parser();
 
 		class	InvalidLineException : public std::exception

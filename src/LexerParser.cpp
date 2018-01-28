@@ -83,7 +83,8 @@ std::string			printLexemValue(t_lexem lex)
 		: (lex == IMPLIES) ? 		"=>"
 		: (lex == OPERAND) ?		"[A-Z]"
 		: (lex == FACTS) ?			"="
-		: 							"?"
+		: (lex == QUERY) ?			"="
+		: 							"end of line"
 	);
 }
 
@@ -126,7 +127,6 @@ void		LexerParser::Lexer(char const *fileName)
 					break;
 				for (j = 1; j < 12; j++)
 				{
-					std::cout << ". " << static_cast<int>(*i)  << ", " << *i << std::endl;
 
 					int lexem_length = (j == OPERAND) ? 1 : _lexem[j].length();
 
@@ -141,7 +141,6 @@ void		LexerParser::Lexer(char const *fileName)
 						std::pair<std::string, t_lexem>	tmp(str, static_cast<t_lexem>(j));
 
 						_lexedFile.push_back(tmp);
-						std::cout << lexem_length  << ": " << _lexem[j] << std:: endl;
 						i += lexem_length;
 						break;
 					}
@@ -164,6 +163,15 @@ void		LexerParser::Lexer(char const *fileName)
 	
 }
 
+t_lexem			LexerParser::findNextLexem(t_vector::iterator i)
+{
+	while (i != _lexedFile.end() && i->second == ENDL)
+		i++;
+	if (i != _lexedFile.end())
+		return i->second;
+	return ENDL;
+}
+
 ExpertSystem	LexerParser::Parser()
 {
 	ExpertSystem expertSystem = ExpertSystem();
@@ -173,54 +181,77 @@ ExpertSystem	LexerParser::Parser()
 	t_vector::iterator i = _lexedFile.begin();
 
 	int nLines = 1;
+	t_lexem nextLexem;
+
+	std::cout << "NEW RULE " << std::endl;
+	std::cout << "NEW TOKEN_LIST" << std::endl;
 	while (i != _lexedFile.end())
 	{
-		if ((i + 1) == _lexedFile.end() &&
-			i->second != OPERAND && i->second != ENDL)
-			throw InvalidLineException("Unexpected token : line " + std::to_string(nLines) + " : la " + printLexemValue((i + 1)->second));
+
+		if (i->second != OPERAND && findNextLexem(i + 1) == ENDL)
+			throw InvalidLineException("Unexpected token : line " + std::to_string(nLines) + " : " + i->first);
+
+		nextLexem = findNextLexem(i + 1);
+		std::string error = "Unexpected token : line " + std::to_string(nLines) + " : " + i->first + " " + printLexemValue(nextLexem);
+
+		if (i->second == ENDL)
+		{
+			nLines++;
+		}
+
 		else if (i->second == O_BRACKET)
 		{
-			if ((i + 1)->second != NEGATIVE && (i + 1)->second != OPERAND)
-				throw InvalidLineException("Unexpected token : line " + std::to_string(nLines) + " : " + printLexemValue((i + 1)->second));
-		}
-		else if (i->second == C_BRACKET)
-		{
-			if ((i + 1)->second == NEGATIVE || (i + 1)->second == OPERAND || (i + 1)->second == O_BRACKET)
-				throw InvalidLineException("Unexpected token : line " + std::to_string(nLines) + " : " + printLexemValue((i + 1)->second));
+			if (nextLexem != NEGATIVE && nextLexem != OPERAND)
+				throw InvalidLineException(error);
 		}
 		else if (i->second == NEGATIVE)
 		{
-			if ((i + 1)->second != O_BRACKET && (i + 1)->second != OPERAND)
-				throw InvalidLineException("Unexpected token : line " + std::to_string(nLines) + " : " + printLexemValue((i + 1)->second));
+			if (nextLexem != O_BRACKET && nextLexem != OPERAND)
+				throw InvalidLineException(error);
 		}
 		else if (i->second == AND || i->second == OR || i->second == XOR)
 		{
-			if ((i + 1)->second != O_BRACKET && (i + 1)->second != OPERAND && (i + 1)->second != NEGATIVE)
-				throw InvalidLineException("Unexpected token : line " + std::to_string(nLines) + " : " + printLexemValue((i + 1)->second));
+			if (nextLexem != O_BRACKET && nextLexem != OPERAND && nextLexem != NEGATIVE)
+				throw InvalidLineException(error);
+		}
+		else if (i->second == FACTS)
+		{
+			if (nextLexem != OPERAND && nextLexem != QUERY)
+				throw InvalidLineException(error);
+		}
+		else if (i->second == QUERY)
+		{
+			if (nextLexem != OPERAND)
+				throw InvalidLineException(error);
+		}
+
+
+		else if (i->second == C_BRACKET)
+		{
+			if (nextLexem == NEGATIVE || nextLexem == OPERAND || nextLexem == O_BRACKET)
+			{
+				std::cout << "NEW RULE " << std::endl;
+				std::cout << "NEW TOKEN_LIST" << std::endl;
+			}
 		}
 		else if (i->second == DOUBLE_IMPLIES || i->second == IMPLIES)
 		{
-			if ((i + 1)->second != O_BRACKET && (i + 1)->second != OPERAND && (i + 1)->second != NEGATIVE)
-				throw InvalidLineException("Unexpected token : line " + std::to_string(nLines) + " : " + printLexemValue((i + 1)->second));
+			if (nextLexem != O_BRACKET && nextLexem != OPERAND && nextLexem != NEGATIVE)
+				throw InvalidLineException(error);
+			std::cout << "NEW TOKEN_LIST" << std::endl;
 		}
 		else if (i->second == OPERAND)
 		{
 			if ((i + 1) != _lexedFile.end() &&
-				((i + 1)->second == NEGATIVE || (i + 1)->second == O_BRACKET))
-				throw InvalidLineException("Unexpected token : line " + std::to_string(nLines) + " : " + printLexemValue((i + 1)->second));
+				(nextLexem == NEGATIVE || nextLexem == O_BRACKET))
+			{
+				std::cout << "NEW RULE " << std::endl;
+				std::cout << "NEW TOKEN_LIST" << std::endl;
+			}
 		}
-		else if (i->second == FACTS)
-		{
-			if ((i + 1)->second != OPERAND && (i + 1)->second != QUERY)
-				throw InvalidLineException("Unexpected token : line " + std::to_string(nLines) + " : " + printLexemValue((i + 1)->second));
-		}
-		else if (i->second == QUERY)
-		{
-			if ((i + 1)->second != OPERAND)
-				throw InvalidLineException("Unexpected token : line " + std::to_string(nLines) + " : " + printLexemValue((i + 1)->second));
-		}
-		else if (i->second == ENDL)
-			nLines++;
+
+		std::cout << "REMPLIR ICI" << std::endl;
+
 		i++;
 	}
 	return ExpertSystem();
