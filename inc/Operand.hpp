@@ -10,28 +10,33 @@ class Operand
 	private:
 		const char	_name;
 		bool		_value;
-		bool		_is_verified;
-		std::vector<Token>	_antecedents;
+		bool		_is_resolved;
+/*
+**		Pas utile
+**		
+**		std::vector<Token>	_antecedents;
+**		
+*/
 		std::vector<Token>	_consequents;
 
 	public:
 		Operand(const char);
 		~Operand();
 
-		char				getName();
+		char			getName() const ;
 
-		bool				getValue();
+		bool			getValue() const ;
 		void				setValue(bool);
                         
-		bool				getIsVerified();
-		void				setIsVerified(bool);
-
-		std::vector<Token>	getAllAntecedents();
-		Token				*getAntecedent(int);
+		bool			getIsResolved() const;
+		void				setIsResolved(bool);
+/*
+		const std::vector<Token>	getAllAntecedents();
+		const Token			*getAntecedent(int);
 		void				addAntecedent(Token const &);
-
-		std::vector<Token>	getAllConsequents();
-		Token				*getConsequent(int);
+*/
+		const std::vector<Token>	getAllConsequents();
+		const Token				*getConsequent(int);
 		void				addConsequent(Token const &);
 
 		class	OperandAlreadyResolvedException: public std::exception

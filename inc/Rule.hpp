@@ -22,13 +22,17 @@ class Rule
 		std::vector<Token> const	&getAllAntecedents() const ;
 		Token				*getAntecedent(int);
 		void				addAntecedent(Token const &);
+		void				setAntecedents(std::vector<Token>);
 
 		std::vector<Token> const &getAllConsequents() const ;
 		Token				*getConsequent(int);
 		void				addConsequent(Token const &);
+		void				setConsequents(std::vector<Token>);
 
 		bool	Resolve();
 		void	Assign();
+
+		void	clear();
 };
 
 #endif

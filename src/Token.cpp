@@ -1,9 +1,9 @@
 #include "Token.hpp"
 
 
-Token::Token(int const type, const Operand *operand, int const fi, bool const ino):	_type(type),
+Token::Token(int const type, const Operand *operand, int const f, bool const ino):	_type(type),
 																				_operand(operand),
-																				_function_index(fi),
+																				_function(f),
 																				_is_negative_operand(ino)
 {
 }
@@ -22,12 +22,13 @@ const Operand	*Token::getOperand()
 	return (_operand);
 }
 
-int				Token::getFunctionIndex()
+int				Token::getFunction()
 {
-	return (_function_index);
+	return (_function);
 }
 
 bool			Token::getIsNegativeOperand()
 {
 	return (_is_negative_operand);
 }
+

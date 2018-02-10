@@ -28,10 +28,23 @@ typedef enum	e_lexem
 	ENDL
 }				t_lexem;
 
+typedef enum	e_status
+{
+	FALSE,
+	TRUE,
+	UNDEFINED,
+	NOT_RESOLVED
+}				t_status;
+
 #include "Operand.hpp"
 #include "Token.hpp"
 #include "Rule.hpp"
 #include "LexerParser.hpp"
+
+t_status		andOperator(Operand const &first, Operand const &second) const;
+t_status		orOperator(Operand const &first, Operand const &second) const;
+t_status		xorOperator(Operand const &first, Operand const &second) const;
+};
 
 class Rule;
 

@@ -44,6 +44,13 @@ void				Rule::addAntecedent(Token const &rule)
 	_antecedents.push_back(rule);
 }
 
+
+void				Rule::setAntecedents(std::vector<Token> rhs)
+{
+	for (size_t i = 0; i < rhs.size(); i++)
+		this->addAntecedent(rhs[i]);
+}
+
 std::vector<Token>	const &Rule::getAllConsequents() const
 {
 	return (_consequents);
@@ -61,6 +68,12 @@ void				Rule::addConsequent(Token const &rule)
 	_consequents.push_back(rule);
 }
 
+void				Rule::setConsequents(std::vector<Token> rhs)
+{
+	for (size_t i = 0; i < rhs.size(); i++)
+		this->addConsequent(rhs[i]);
+}
+
 
 bool				Rule::Resolve()
 {
@@ -71,4 +84,10 @@ bool				Rule::Resolve()
 void				Rule::Assign()
 {
 	std::cout << "Assign values." << std::endl;
+}
+
+void				Rule::clear()
+{
+	_antecedents.clear();
+	_consequents.clear();
 }

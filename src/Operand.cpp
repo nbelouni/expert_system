@@ -1,21 +1,21 @@
 #include "Operand.hpp"
 
-Operand::Operand(const char c): _name(c), _value(false), _is_verified(false)
+Operand::Operand(const char c): _name(c), _value(false), _is_resolved(false)
 {
 }
 
 Operand::~Operand()
 {
-	_antecedents.clear();
+//	_antecedents.clear();
 	_consequents.clear();
 }
 
-char	Operand::getName()
+char	Operand::getName() const 
 {
 	return (_name);
 }
 
-bool		Operand::getValue()
+bool		Operand::getValue() const 
 {
 	return (_value);
 }
@@ -25,16 +25,16 @@ void		Operand::setValue(bool value)
 	_value = value;
 }
 
-bool		Operand::getIsVerified()
+bool		Operand::getIsResolved() const 
 {
-	return (_is_verified);
+	return (_is_resolved);
 }
 
-void		Operand::setIsVerified(bool value)
+void		Operand::setIsResolved(bool value)
 {
-	_is_verified = value;
+	_is_resolved = value;
 }
-
+/*
 std::vector<Token>	Operand::getAllAntecedents()
 {
 	return (_antecedents);
@@ -51,13 +51,13 @@ void				Operand::addAntecedent(Token const &rule)
 {
 	_antecedents.push_back(rule);
 }
-
-std::vector<Token>	Operand::getAllConsequents()
+*/
+const std::vector<Token>	Operand::getAllConsequents()
 {
 	return (_consequents);
 }
 
-Token				*Operand::getConsequent(int i)
+const Token				*Operand::getConsequent(int i)
 {
 	if (i >= 0 && static_cast<size_t>(i) < _consequents.size())
 		return (&(_consequents[i]));
@@ -68,6 +68,7 @@ void				Operand::addConsequent(Token const &rule)
 {
 	_consequents.push_back(rule);
 }
+
 
 
 /*

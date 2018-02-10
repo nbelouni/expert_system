@@ -21,6 +21,7 @@ class Token
 		const Operand	*getOperand();
 		int				getFunctionIndex();
 		bool			getIsNegativeOperand();
+
 };
 
 #endif

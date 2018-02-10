@@ -65,7 +65,8 @@ std::string			printLexem(t_lexem lex)
 		: (lex == IMPLIES) ? 		"IMPLIES"
 		: (lex == OPERAND) ?		"OPERAND"
 		: (lex == FACTS) ?			"FACTS"
-		: 							"QUERY"
+		: (lex == QUERY) ?			"QUERY"
+		:							"ENDL"
 	);
 }
 
@@ -83,7 +84,7 @@ std::string			printLexemValue(t_lexem lex)
 		: (lex == IMPLIES) ? 		"=>"
 		: (lex == OPERAND) ?		"[A-Z]"
 		: (lex == FACTS) ?			"="
-		: (lex == QUERY) ?			"="
+		: (lex == QUERY) ?			"?"
 		: 							"end of line"
 	);
 }
@@ -177,19 +178,20 @@ ExpertSystem	LexerParser::Parser()
 	ExpertSystem expertSystem = ExpertSystem();
 
 	Rule newRule = Rule();
+
+	std::vector<Token> newTokenList;
     
 	t_vector::iterator i = _lexedFile.begin();
-
 	int nLines = 1;
 	t_lexem nextLexem;
 
-	std::cout << "NEW RULE " << std::endl;
-	std::cout << "NEW TOKEN_LIST" << std::endl;
 	while (i != _lexedFile.end())
 	{
-
-		if (i->second != OPERAND && findNextLexem(i + 1) == ENDL)
+		if (i->second != OPERAND && i->second != ENDL 
+			&& (i + 1) != _lexedFile.end() && findNextLexem(i + 1) == ENDL)
+		{
 			throw InvalidLineException("Unexpected token : line " + std::to_string(nLines) + " : " + i->first);
+		}
 
 		nextLexem = findNextLexem(i + 1);
 		std::string error = "Unexpected token : line " + std::to_string(nLines) + " : " + i->first + " " + printLexemValue(nextLexem);
@@ -203,59 +205,75 @@ ExpertSystem	LexerParser::Parser()
 		{
 			if (nextLexem != NEGATIVE && nextLexem != OPERAND)
 				throw InvalidLineException(error);
+			newTokenList.push_back(Token(i->second, NULL, -1, false));
 		}
 		else if (i->second == NEGATIVE)
 		{
+			std::cout << "ON FAIT QUOI POUR CA ? " << std::endl;
 			if (nextLexem != O_BRACKET && nextLexem != OPERAND)
 				throw InvalidLineException(error);
+			newTokenList.push_back(Token(i->second, NULL, -1, false));
 		}
-		else if (i->second == AND || i->second == OR || i->second == XOR)
-		{
-			if (nextLexem != O_BRACKET && nextLexem != OPERAND && nextLexem != NEGATIVE)
-				throw InvalidLineException(error);
-		}
-		else if (i->second == FACTS)
-		{
-			if (nextLexem != OPERAND && nextLexem != QUERY)
-				throw InvalidLineException(error);
-		}
-		else if (i->second == QUERY)
-		{
-			if (nextLexem != OPERAND)
-				throw InvalidLineException(error);
-		}
-
-
 		else if (i->second == C_BRACKET)
 		{
+			newTokenList.push_back(Token(i->second, NULL, -1, false));
 			if (nextLexem == NEGATIVE || nextLexem == OPERAND || nextLexem == O_BRACKET)
 			{
-				std::cout << "NEW RULE " << std::endl;
-				std::cout << "NEW TOKEN_LIST" << std::endl;
+				newRule.setConsequents(newTokenList);
+				newTokenList.clear();
+				expertSystem.addRule(newRule);
+				newRule.clear();
 			}
 		}
 		else if (i->second == DOUBLE_IMPLIES || i->second == IMPLIES)
 		{
 			if (nextLexem != O_BRACKET && nextLexem != OPERAND && nextLexem != NEGATIVE)
 				throw InvalidLineException(error);
-			std::cout << "NEW TOKEN_LIST" << std::endl;
+			if (newTokenList.size() == 0)
+				throw InvalidLineException(error);
+
+			newRule.setAntecedents(newTokenList);
+			newTokenList.clear();
 		}
+		else if (i->second == AND || i->second == OR || i->second == XOR)
+		{
+			std::cout << "AJOUTER FONCTION" << std::endl;
+			if (nextLexem != O_BRACKET && nextLexem != OPERAND && nextLexem != NEGATIVE)
+				throw InvalidLineException(error);
+			newTokenList.push_back(Token(i->second, NULL, -1, false));
+		}
+		else if (i->second == FACTS)
+		{
+			if (nextLexem != OPERAND && nextLexem != QUERY)
+				throw InvalidLineException(error);
+			std::cout << "SET FACTS ";
+		}
+		else if (i->second == QUERY)
+		{
+			if (nextLexem != OPERAND)
+				throw InvalidLineException(error);
+			std::cout << "SET QUERIES ";
+		}
+
+
 		else if (i->second == OPERAND)
 		{
+
 			if ((i + 1) != _lexedFile.end() &&
 				(nextLexem == NEGATIVE || nextLexem == O_BRACKET))
 			{
-				std::cout << "NEW RULE " << std::endl;
-				std::cout << "NEW TOKEN_LIST" << std::endl;
+				newRule.setConsequents(newTokenList);
+				newTokenList.clear();
+				newRule.clear();
 			}
 		}
-
-		std::cout << "REMPLIR ICI" << std::endl;
-
+//		if (i->second != ENDL)
+//			std::cout << "REMPLIR ICI " << printLexem(i->second) << std::endl;
 		i++;
 	}
 	return ExpertSystem();
 }
+
 /*
  *	Nested Classes
  */
