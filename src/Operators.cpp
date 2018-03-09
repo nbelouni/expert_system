@@ -1,6 +1,6 @@
 #include "expertSystem.hpp"
 
-t_status		andOperator(Operand const &first, Operand const &second) const
+t_status		andOperator(Operand const &first, Operand const &second)
 {
 	if (first.getIsResolved() == true && second.getIsResolved() == true)
 	{
@@ -12,7 +12,7 @@ t_status		andOperator(Operand const &first, Operand const &second) const
 	return (NOT_RESOLVED);
 }
 
-t_status		orOperator(Operand const &first, Operand const &second) const
+t_status		orOperator(Operand const &first, Operand const &second)
 {
 	if (first.getIsResolved() == true && second.getIsResolved() == true)
 	{
@@ -24,7 +24,7 @@ t_status		orOperator(Operand const &first, Operand const &second) const
 	return (NOT_RESOLVED);
 }
 
-t_status		xorOperator(Operand const &first, Operand const &second) const
+t_status		xorOperator(Operand const &first, Operand const &second)
 {
 	if (first.getIsResolved() == true && second.getIsResolved() == true)
 	{

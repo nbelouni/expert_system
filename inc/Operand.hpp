@@ -23,21 +23,21 @@ class Operand
 		Operand(const char);
 		~Operand();
 
-		char			getName() const ;
+		char						getName() const ;
 
-		bool			getValue() const ;
-		void				setValue(bool);
+		bool						getValue() const ;
+		void						setValue(bool);
                         
-		bool			getIsResolved() const;
-		void				setIsResolved(bool);
+		bool						getIsResolved() const;
+		void						setIsResolved(bool);
 /*
 		const std::vector<Token>	getAllAntecedents();
 		const Token			*getAntecedent(int);
 		void				addAntecedent(Token const &);
 */
 		const std::vector<Token>	getAllConsequents();
-		const Token				*getConsequent(int);
-		void				addConsequent(Token const &);
+		const Token					*getConsequent(int);
+		void						addConsequent(Token const &);
 
 		class	OperandAlreadyResolvedException: public std::exception
 		{

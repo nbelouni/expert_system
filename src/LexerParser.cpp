@@ -205,18 +205,18 @@ ExpertSystem	LexerParser::Parser()
 		{
 			if (nextLexem != NEGATIVE && nextLexem != OPERAND)
 				throw InvalidLineException(error);
-			newTokenList.push_back(Token(i->second, NULL, -1, false));
+			newTokenList.push_back(Token(i->second, NULL, NULL, false));
 		}
 		else if (i->second == NEGATIVE)
 		{
 			std::cout << "ON FAIT QUOI POUR CA ? " << std::endl;
 			if (nextLexem != O_BRACKET && nextLexem != OPERAND)
 				throw InvalidLineException(error);
-			newTokenList.push_back(Token(i->second, NULL, -1, false));
+			newTokenList.push_back(Token(i->second, NULL, NULL, false));
 		}
 		else if (i->second == C_BRACKET)
 		{
-			newTokenList.push_back(Token(i->second, NULL, -1, false));
+			newTokenList.push_back(Token(i->second, NULL, NULL, false));
 			if (nextLexem == NEGATIVE || nextLexem == OPERAND || nextLexem == O_BRACKET)
 			{
 				newRule.setConsequents(newTokenList);
@@ -229,8 +229,11 @@ ExpertSystem	LexerParser::Parser()
 		{
 			if (nextLexem != O_BRACKET && nextLexem != OPERAND && nextLexem != NEGATIVE)
 				throw InvalidLineException(error);
-			if (newTokenList.size() == 0)
-				throw InvalidLineException(error);
+			/*
+			**	if first element
+			*/
+//			if (newTokenList.size() == 0)
+//				throw InvalidLineException(error);
 
 			newRule.setAntecedents(newTokenList);
 			newTokenList.clear();
@@ -240,7 +243,7 @@ ExpertSystem	LexerParser::Parser()
 			std::cout << "AJOUTER FONCTION" << std::endl;
 			if (nextLexem != O_BRACKET && nextLexem != OPERAND && nextLexem != NEGATIVE)
 				throw InvalidLineException(error);
-			newTokenList.push_back(Token(i->second, NULL, -1, false));
+			newTokenList.push_back(Token(i->second, NULL, NULL, false));
 		}
 		else if (i->second == FACTS)
 		{
@@ -258,18 +261,48 @@ ExpertSystem	LexerParser::Parser()
 
 		else if (i->second == OPERAND)
 		{
+			std::cout << "OPERAND" << std::endl;
+			bool sign = true;
+			if (i - 1 >= _lexedFile.begin() && (i - 1)->second == NEGATIVE)
+				sign = false;
+
+			if (!expertSystem.findOperand(i->first.c_str()[0]))
+				expertSystem.addOperand(Operand(i->first.c_str()[0]));
+			newTokenList.push_back(Token(i->second, expertSystem.getOperand(i->first.c_str()[0]), NULL, sign));
 
 			if ((i + 1) != _lexedFile.end() &&
-				(nextLexem == NEGATIVE || nextLexem == O_BRACKET))
+				(nextLexem == NEGATIVE || nextLexem == O_BRACKET || nextLexem == OPERAND))
 			{
-				newRule.setConsequents(newTokenList);
+//			std::cout << printLexem(i->second) << " -> " << printLexem(nextLexem) << std::endl;
+
+				if (newRule.getAllConsequents().size() == 0)
+					newRule.setConsequents(newTokenList);
+				else
+				{
+					newRule.setAntecedents(newTokenList);
+					expertSystem.addRule(newRule);
+					newRule.clear();
+				}
 				newTokenList.clear();
-				newRule.clear();
 			}
 		}
-//		if (i->second != ENDL)
-//			std::cout << "REMPLIR ICI " << printLexem(i->second) << std::endl;
+		if (i->second != ENDL)
+			std::cout << "REMPLIR ICI " << printLexem(i->second) << std::endl;
+		std::cout << "newTokenList size : " << newTokenList.size() << std::endl;
+		std::cout << "Rule antecedents size : " << newRule.getAllAntecedents().size() << std::endl;
+		std::cout << "Rule consequents size : " << newRule.getAllConsequents().size() << std::endl;
 		i++;
+	}
+	std::cout << expertSystem.getAllRules().size() << std::endl;
+	for (size_t i = 0; i < expertSystem.getAllRules().size(); i++)
+	{
+		for (size_t j = 0; i < expertSystem.getAllRules()[i].getAllAntecedents().size(); i++)
+		{
+			std::cout << printLexem(expertSystem.getAllRules()[i].getAllAntecedents()[j].getType()) ;
+			std::cout << " ";
+			if (expertSystem.getAllRules()[i].getAllAntecedents()[j].getType() == OPERAND)
+				std::cout << printLexemValue(expertSystem.getAllRules()[i].getAllAntecedents()[j].getOperand().getName()) << std::endl;
+		}
 	}
 	return ExpertSystem();
 }

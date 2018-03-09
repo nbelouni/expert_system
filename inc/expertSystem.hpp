@@ -41,10 +41,9 @@ typedef enum	e_status
 #include "Rule.hpp"
 #include "LexerParser.hpp"
 
-t_status		andOperator(Operand const &first, Operand const &second) const;
-t_status		orOperator(Operand const &first, Operand const &second) const;
-t_status		xorOperator(Operand const &first, Operand const &second) const;
-};
+t_status		andOperator(Operand const &first, Operand const &second);
+t_status		orOperator(Operand const &first, Operand const &second);
+t_status		xorOperator(Operand const &first, Operand const &second);
 
 class Rule;
 
