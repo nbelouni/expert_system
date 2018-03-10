@@ -17,7 +17,7 @@ ExpertSystem::~ExpertSystem()
 
 ExpertSystem				&ExpertSystem::operator=(ExpertSystem const &rhs)
 {
-	const std::vector<Operand> &tmp1 = rhs.getAllOperands();
+	const std::vector<Operand *> &tmp1 = rhs.getAllOperands();
 	const std::vector<Rule> &tmp2 = rhs.getAllRules();
 
 	for (size_t i = 0; i < tmp1.size(); i++)
@@ -27,7 +27,7 @@ ExpertSystem				&ExpertSystem::operator=(ExpertSystem const &rhs)
 	return *this;
 }
 
-const std::vector<Operand> &ExpertSystem::getAllOperands() const 
+const std::vector<Operand *> &ExpertSystem::getAllOperands() const 
 {
 	return (_operands);
 }
@@ -35,21 +35,23 @@ const std::vector<Operand> &ExpertSystem::getAllOperands() const
 Operand						*ExpertSystem::findOperand(const char name)
 {
 	for (size_t i = 0; i < _operands.size(); i++)
-		if (_operands[i].getName() == name)
-			return (&(_operands[i]));
+	{
+		if (_operands[i]->getName() == name)
+			return (&(*(_operands[i])));
+	}
 	return (NULL);
 }
 
-Operand						*ExpertSystem::getOperand(int i)
+Operand						*ExpertSystem::getOperand(int i) const
 {
 	if (i >= 0 && static_cast<size_t>(i) < _operands.size())
-		return (&(_operands[i]));
+		return (&(*(_operands[i])));
 	return (NULL);
 }
 
-void				ExpertSystem::addOperand(Operand const &rule)
+void				ExpertSystem::addOperand(Operand *operand)
 {
-	_operands.push_back(rule);
+	_operands.push_back(operand);
 }
 
 std::vector<Rule>	const &ExpertSystem::getAllRules() const
@@ -69,4 +71,18 @@ void				ExpertSystem::addRule(Rule const &rule)
 	_rules.push_back(rule);
 }
 
+void				ExpertSystem::pushQuery(Operand *operand)
+{
+	_queries.push(operand);
+}
 
+Operand				*ExpertSystem::popQuery()
+{
+	Operand *nextQuery = NULL;
+	if (_queries.size() > 0)
+	{
+		nextQuery = _queries.front();
+		_queries.pop();
+	}
+	return nextQuery;
+}

@@ -17,17 +17,17 @@ t_lexem				Token::getType() const
 	return (_type);
 }
 
-const Operand		*Token::getOperand()
+const Operand		*Token::getOperand() const
 {
-	return (_operand);
+	return (&(*_operand));
 }
 
-Token::t_operator	Token::getFunction()
+Token::t_operator	Token::getFunction() const
 {
 	return (_function);
 }
 
-bool				Token::getIsNegativeOperand()
+bool				Token::getIsNegativeOperand() const
 {
 	return (_is_negative_operand);
 }

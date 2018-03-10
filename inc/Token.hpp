@@ -19,9 +19,9 @@ class Token
 		~Token();
 
 		t_lexem			getType() const;
-		const Operand	*getOperand();
-		t_operator		getFunction();
-		bool			getIsNegativeOperand();
+		const Operand	*getOperand() const;
+		t_operator		getFunction() const;
+		bool			getIsNegativeOperand() const;
 
 };
 
