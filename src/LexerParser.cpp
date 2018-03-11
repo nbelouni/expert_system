@@ -344,7 +344,6 @@ ExpertSystem	LexerParser::Parser()
             
 			if (i->second == ENDL)
 				nLines++;
-            
 			else if (i->second == O_BRACKET)
 				addOBracket(i, newTokenList, nextLexem);
 			else if (i->second == NEGATIVE)
