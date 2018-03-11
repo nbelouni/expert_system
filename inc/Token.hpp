@@ -7,21 +7,21 @@ class Operand;
 
 class Token
 {
-	typedef t_status (*)(Operand const &first, Operand const &second) t_operator;
+	typedef bool (*t_operator)(Operand const &first, Operand const &second) ;
 	private:
-		const int		_type;
-		const Operand	*_operand;
+		const t_lexem	_type;
+		Operand	*	const _operand;
 		t_operator		_function;
 		const bool		_is_negative_operand;
 
 	public:
-		Token(int const, const Operand *, t_operator const, bool const);
+		Token(t_lexem const,Operand * const , t_operator, bool const);
 		~Token();
 
-		int				getType();
-		const Operand	*getOperand();
-		int				getFunctionIndex();
-		bool			getIsNegativeOperand();
+		t_lexem			getType() const;
+		Operand			*getOperand();
+		t_operator		getFunction() const;
+		bool			getIsNegativeOperand() const;
 
 };
 

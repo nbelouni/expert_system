@@ -69,8 +69,6 @@ void				Operand::addConsequent(Token const &rule)
 	_consequents.push_back(rule);
 }
 
-
-
 /*
  *	Nested Classes
  */

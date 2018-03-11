@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <utility>
+#include <queue>
 #include <string>
 #include <vector>
 #include <regex>
@@ -45,13 +46,16 @@ t_status		andOperator(Operand const &first, Operand const &second);
 t_status		orOperator(Operand const &first, Operand const &second);
 t_status		xorOperator(Operand const &first, Operand const &second);
 
+
+void			printTokenList(std::vector<Token> newTokenList);
 class Rule;
 
 class ExpertSystem
 {
 	private:
-		std::vector<Operand>	_operands;
+		std::vector<Operand *>	_operands;
 		std::vector<Rule>		_rules;
+		std::queue<Operand *>	_queries;
 
 	public:
 		ExpertSystem();
@@ -60,14 +64,20 @@ class ExpertSystem
 
 		ExpertSystem				&operator=(ExpertSystem const &rhs);
 
-		const std::vector<Operand>	&getAllOperands() const;
-		Operand						*findOperand(const char);
-		Operand						*getOperand(int i);
-		void						addOperand(const Operand &);
+		const std::vector<Operand *>	&getAllOperands() const;
+		Operand							*findOperand(const char);
+		Operand							*getOperand(int i) const;
+		void							addOperand(Operand *);
 
-		std::vector<Rule>	const	&getAllRules() const ;
-		Rule						*getRule(int i);
-		void						addRule(const Rule &);
+		std::vector<Rule>	const		&getAllRules() const ;
+		Rule							*getRule(int i);
+		void							addRule(const Rule &);
+
+		void							pushQuery(Operand *);
+		Operand							*popQuery();
+
+		void							printOperands();
+		void							printRules();
 };
 
 #endif

@@ -12,6 +12,12 @@ class LexerParser
 	private:
 		t_vector					_lexedFile;
 		std::vector<std::string>	_lexem;
+		std::string 				_error;
+		std::string 				_factsAndQueriesError;
+		bool						_facts;
+		bool						_queries;
+		int							_brackets;
+
 
 	public:
 		LexerParser();
@@ -28,6 +34,15 @@ class LexerParser
 
 		t_lexem			findNextLexem(t_vector::iterator i);
 		ExpertSystem	Parser();
+
+		void			addOBracket(t_vector::iterator i, std::vector<Token> &newTokenList, t_lexem nextLexem);
+		void			addNegative(t_lexem nextLexem);
+		void			addCBracket(t_vector::iterator i, std::vector<Token> &newTokenList, t_lexem nextLexem, Rule &newRule, ExpertSystem &expertSystem);
+		void			addImplies(std::vector<Token> &newTokenList, t_lexem nextLexem, Rule &newRule, int nLines);
+		void			addOperator(t_vector::iterator i, std::vector<Token> &newTokenList, t_lexem nextLexem);
+		void			addFacts(t_lexem nextLexem);
+		void			addQueries(t_lexem nextLexem);
+		void			addOperand(t_vector::iterator i, std::vector<Token> &newTokenList, t_lexem nextLexem, Rule &newRule, ExpertSystem &expertSystem, int nLines);
 
 		class	InvalidLineException : public std::exception
 		{
