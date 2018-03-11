@@ -46,6 +46,8 @@ t_status		andOperator(Operand const &first, Operand const &second);
 t_status		orOperator(Operand const &first, Operand const &second);
 t_status		xorOperator(Operand const &first, Operand const &second);
 
+
+void			printTokenList(std::vector<Token> newTokenList);
 class Rule;
 
 class ExpertSystem
@@ -73,6 +75,9 @@ class ExpertSystem
 
 		void							pushQuery(Operand *);
 		Operand							*popQuery();
+
+		void							printOperands();
+		void							printRules();
 };
 
 #endif

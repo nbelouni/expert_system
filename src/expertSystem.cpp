@@ -86,3 +86,26 @@ Operand				*ExpertSystem::popQuery()
 	}
 	return nextQuery;
 }
+
+void				ExpertSystem::printOperands()
+{
+	std::cout << "Operands : " << std::endl;
+	for (size_t i = 0; i < _operands.size(); i++)
+	{
+		std::cout << "name : " << _operands[i]->getName() << ", ";
+		std::cout << "value : " << _operands[i]->getValue() << ", "; 
+		std::cout << "isResolved : " << _operands[i]->getIsResolved() << std::endl;
+	}
+}
+
+void				ExpertSystem::printRules()
+{
+	for (size_t i = 0; i < _rules.size(); i++)
+	{
+		std::cout << " Rule " << i << " : " << std::endl;
+		std::cout << "Antecedents : " << std::endl;
+		printTokenList(_rules[i].getAllAntecedents());
+		std::cout << "Consequents : " << std::endl;
+		printTokenList(_rules[i].getAllConsequents());
+	}
+}

@@ -1,7 +1,7 @@
 #include "Token.hpp"
 
 
-Token::Token(t_lexem const type, const Operand *operand, t_operator f, bool const ino):	_type(type),
+Token::Token(t_lexem const type, Operand * const operand, t_operator f, bool const ino):	_type(type),
 																				_operand(operand),
 																				_function(f),
 																				_is_negative_operand(ino)
@@ -17,7 +17,7 @@ t_lexem				Token::getType() const
 	return (_type);
 }
 
-const Operand		*Token::getOperand() const
+Operand		* 		Token::getOperand()
 {
 	return (&(*_operand));
 }
