@@ -1,0 +1,5 @@
+G | V => X
+C => E
+A + B + C => D
+=CABG
+?GVX
