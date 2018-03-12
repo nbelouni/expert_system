@@ -4,6 +4,7 @@
 #include "expertSystem.hpp"
 
 class ExpertSystem;
+class Rule;
 
 class LexerParser
 {
