@@ -34,39 +34,58 @@ void		Operand::setIsResolved(bool value)
 {
 	_is_resolved = value;
 }
-/*
-std::vector<Token>	Operand::getAllAntecedents()
+
+const std::vector<Rule>	Operand::getAllAntecedents() const
 {
 	return (_antecedents);
 }
 
-Token				*Operand::getAntecedent(int i)
+const Rule				*Operand::getAntecedent(int i) const
 {
 	if (i >= 0 && static_cast<size_t>(i) < _antecedents.size())
 		return (&(_antecedents[i]));
 	return (NULL);
 }
 
-void				Operand::addAntecedent(Token const &rule)
+void				Operand::addAntecedent(Rule const &rule)
 {
 	_antecedents.push_back(rule);
 }
-*/
-const std::vector<Token>	Operand::getAllConsequents()
+
+const std::vector<Rule>	Operand::getAllConsequents() const
 {
 	return (_consequents);
 }
 
-const Token				*Operand::getConsequent(int i)
+const Rule				*Operand::getConsequent(int i) const
 {
 	if (i >= 0 && static_cast<size_t>(i) < _consequents.size())
 		return (&(_consequents[i]));
 	return (NULL);
 }
 
-void				Operand::addConsequent(Token const &rule)
+void				Operand::addConsequent(Rule const &rule)
 {
 	_consequents.push_back(rule);
+}
+
+void				Operand::printRules()
+{
+	std::cout << "Antecedents : " << std::endl;
+	for (size_t i = 0; i < _antecedents.size(); i++)
+	{
+		std::cout << " Rule " << i << " : " << std::endl;
+		printTokenList(_antecedents[i].getAllAntecedents());
+		printTokenList(_antecedents[i].getAllConsequents());
+	}
+
+	std::cout << "Consequents : " << std::endl;
+	for (size_t i = 0; i < _consequents.size(); i++)
+	{
+		std::cout << " Rule " << i << " : " << std::endl;
+		printTokenList(_consequents[i].getAllAntecedents());
+		printTokenList(_consequents[i].getAllConsequents());
+	}
 }
 
 /*

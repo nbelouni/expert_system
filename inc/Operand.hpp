@@ -3,6 +3,7 @@
 
 #include "expertSystem.hpp"
 
+class Rule;
 class Token;
 
 class Operand
@@ -11,13 +12,11 @@ class Operand
 		const char	_name;
 		bool		_value;
 		bool		_is_resolved;
-/*
-**		Pas utile
-**		
-**		std::vector<Token>	_antecedents;
-**		
-*/
-		std::vector<Token>	_consequents;
+
+		std::vector<Rule>	_antecedents;
+		
+
+		std::vector<Rule>	_consequents;
 
 	public:
 		Operand(const char);
@@ -30,14 +29,16 @@ class Operand
                         
 		bool						getIsResolved() const;
 		void						setIsResolved(bool);
-/*
-		const std::vector<Token>	getAllAntecedents();
-		const Token			*getAntecedent(int);
-		void				addAntecedent(Token const &);
-*/
-		const std::vector<Token>	getAllConsequents();
-		const Token					*getConsequent(int);
-		void						addConsequent(Token const &);
+
+		const std::vector<Rule>		getAllAntecedents() const;
+		const Rule					*getAntecedent(int) const;
+		void						addAntecedent(Rule const &);
+
+		const std::vector<Rule>		getAllConsequents() const;
+		const Rule					*getConsequent(int) const;
+		void						addConsequent(Rule const &);
+
+		void						printRules();
 
 		class	OperandAlreadyResolvedException: public std::exception
 		{

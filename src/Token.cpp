@@ -12,12 +12,21 @@ Token::~Token()
 {
 }
 
+Token				&Token::operator=(Token const &rhs)
+{
+	_type = rhs.getType();
+	_operand = rhs.getOperand();
+	_function = rhs.getFunction();
+	_is_negative_operand = rhs.getIsNegativeOperand();
+	return *this;
+}
+
 t_lexem				Token::getType() const
 {
 	return (_type);
 }
 
-Operand		* 		Token::getOperand()
+Operand		* 		Token::getOperand() const 
 {
 	return (&(*_operand));
 }

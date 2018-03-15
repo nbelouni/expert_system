@@ -66,8 +66,29 @@ Rule				*ExpertSystem::getRule(int i)
 	return (NULL);
 }
 
-void				ExpertSystem::addRule(Rule const &rule)
+void				ExpertSystem::addRule(Rule const & rule)
 {
+	std::vector<Token> tmpToken = rule.getAllAntecedents();
+	Operand *tmpOperand = NULL;
+	for (size_t i = 0; i < tmpToken.size(); i++)
+	{
+		if (tmpToken[i].getType() == OPERAND)
+		{
+			tmpOperand = findOperand(tmpToken[i].getOperand()->getName());
+			if (tmpOperand)
+				tmpOperand->addAntecedent(rule);
+		}
+	}
+	tmpToken = rule.getAllConsequents();
+	for (size_t i = 0; i < tmpToken.size(); i++)
+	{
+		if (tmpToken[i].getType() == OPERAND)
+		{
+			tmpOperand = findOperand(tmpToken[i].getOperand()->getName());
+			if (tmpOperand)
+				tmpOperand->addConsequent(rule);
+		}
+	}
 	_rules.push_back(rule);
 }
 
@@ -95,7 +116,9 @@ void				ExpertSystem::printOperands()
 		std::cout << "name : " << _operands[i]->getName() << ", ";
 		std::cout << "value : " << _operands[i]->getValue() << ", "; 
 		std::cout << "isResolved : " << _operands[i]->getIsResolved() << std::endl;
+		_operands[i]->printRules();
 	}
+	std::cout << "________________________________" << std::endl;
 }
 
 void				ExpertSystem::printRules()

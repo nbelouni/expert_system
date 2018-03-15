@@ -185,15 +185,16 @@ void		LexerParser::Lexer(char const *fileName)
 
 void			printTokenList(std::vector<Token> newTokenList)
 {
-		std::cout << "____________________ newTokenList  _____________________ : " << newTokenList.size() << std::endl;
 		for (size_t j = 0; j < newTokenList.size(); j++)
 		{
-			std::cout << printLexem(newTokenList[j].getType()) << " " ;
+			if (newTokenList[j].getIsNegativeOperand() == true)
+				std::cout << "!";
 			if (newTokenList[j].getType() == OPERAND)
 				std::cout << newTokenList[j].getOperand()->getName() << " ";
+			else
+			std::cout << printLexemValue(newTokenList[j].getType()) << " " ;
 		}
 		std::cout << std::endl;
-		std::cout << "____________________ _____________________" <<  std::endl;
 }
 
 t_lexem			LexerParser::findNextLexem(t_vector::iterator i)
@@ -288,16 +289,16 @@ void			LexerParser::addQueries(t_lexem nextLexem)
 
 void			LexerParser::addOperand(t_vector::iterator i, std::vector<Token> &newTokenList, t_lexem nextLexem, Rule &newRule, ExpertSystem &expertSystem, int nLines)
 {
-	bool sign = true;
+	bool negSign = false;
 	if (i - 1 >= _lexedFile.begin() && (i - 1)->second == NEGATIVE)
-		sign = false;
+		negSign = true;
 
 	if (_facts == false && _queries == false)
 	{
 		if (!expertSystem.findOperand(i->first.c_str()[0]))
 			expertSystem.addOperand(new Operand(i->first.c_str()[0]));
 
-		newTokenList.push_back(Token(i->second, expertSystem.findOperand(i->first.c_str()[0]), NULL, sign));
+		newTokenList.push_back(Token(i->second, expertSystem.findOperand(i->first.c_str()[0]), NULL, negSign));
         
 		if ((i + 1) != _lexedFile.end() &&
 			(nextLexem == NEGATIVE || nextLexem == O_BRACKET || nextLexem == OPERAND || nextLexem == FACTS))
@@ -393,9 +394,8 @@ ExpertSystem	LexerParser::Parser()
 		std::rethrow_exception(std::current_exception());
 	}
 
-	expertSystem.printRules();
+//	expertSystem.printRules();
 	expertSystem.printOperands();
-	std::cout << "ok" << std::endl;
 	return expertSystem;
 }
 
