@@ -17,7 +17,9 @@ int main(int argc, char **argv)
 	}
 	catch(std::exception &e)
 	{
+			std::cout << "____3" << std::endl;
 		std::cout << e.what() << std::endl;
+			std::cout << "____4" << std::endl;
 	}
 	return 0;
 }

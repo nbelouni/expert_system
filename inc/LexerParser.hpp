@@ -18,7 +18,7 @@ class LexerParser
 		bool						_facts;
 		bool						_queries;
 		int							_brackets;
-
+		std::vector<std::string>	_exception;
 
 	public:
 		LexerParser();
@@ -27,6 +27,9 @@ class LexerParser
 
 		LexerParser		&operator=(LexerParser const &lex);
 		t_vector		const &getLexedFile() const;
+
+		void 			addExceptionMessage(std::string);
+		bool 			exceptionEmpty(void);
 
 		void			clear(void);
 		void			printLexedFile();
@@ -48,10 +51,10 @@ class LexerParser
 		class	InvalidLineException : public std::exception
 		{
 			private:
-				std::string		_message;
+				std::vector<std::string>	_messages;
 
 			public:
-				InvalidLineException(std::string);
+				InvalidLineException(std::vector<std::string> erors);
 				InvalidLineException(InvalidLineException const &);
 				virtual ~InvalidLineException() throw();
 				virtual const char *what() const throw();
@@ -59,6 +62,8 @@ class LexerParser
 			private:
 			InvalidLineException &operator=(InvalidLineException const &);
 		};
+
+
 };
 
 #endif
