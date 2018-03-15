@@ -315,7 +315,9 @@ void			LexerParser::addOperand(t_vector::iterator i, std::vector<Token> &newToke
 			else
 			{
 				newRule.setConsequents(newTokenList);
+				newRule.reorderTokenArrays();
 				expertSystem.addRule(newRule);
+//				expertSystem.printRules();
 				if (lastImplie == DOUBLE_IMPLIES)
 				{
 					Rule tmp;
@@ -404,8 +406,7 @@ ExpertSystem	LexerParser::Parser()
 		std::rethrow_exception(std::current_exception());
 	}
 
-//	expertSystem.printRules();
-	expertSystem.printOperands();
+//	expertSystem.printOperands();
 	return expertSystem;
 }
 

@@ -9,7 +9,7 @@ class Token;
 class Operand
 {
 	private:
-		const char	_name;
+		 char		_name;
 		bool		_value;
 		bool		_is_resolved;
 
@@ -21,6 +21,8 @@ class Operand
 	public:
 		Operand(const char);
 		~Operand();
+
+		Operand						&operator=(Operand const &);
 
 		char						getName() const ;
 

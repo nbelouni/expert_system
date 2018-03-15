@@ -28,6 +28,7 @@ class Rule
 		Token				*getConsequent(int);
 		void				addConsequent(Token const &);
 		void				setConsequents(std::vector<Token>);
+		void				reorderTokenArrays();
 
 		bool	Resolve();
 		void	Assign();

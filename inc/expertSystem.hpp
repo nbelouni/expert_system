@@ -50,6 +50,9 @@ t_status		xorOperator(Operand const &first, Operand const &second);
 
 
 void			printTokenList(std::vector<Token> newTokenList);
+std::string			printLexem(t_lexem lex);
+std::string			printLexemValue(t_lexem lex);
+
 class Rule;
 
 class ExpertSystem

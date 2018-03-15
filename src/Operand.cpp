@@ -10,6 +10,14 @@ Operand::~Operand()
 	_consequents.clear();
 }
 
+Operand	&Operand::operator=(Operand const &rhs)
+{
+	_name = rhs.getName();
+	_value = rhs.getValue();
+	_is_resolved = rhs.getIsResolved();
+	return (*this);
+}
+
 char	Operand::getName() const 
 {
 	return (_name);
