@@ -287,7 +287,7 @@ void			LexerParser::addQueries(t_lexem nextLexem)
 	_queries = true;
 }
 
-void			LexerParser::addOperand(t_vector::iterator i, std::vector<Token> &newTokenList, t_lexem nextLexem, Rule &newRule, ExpertSystem &expertSystem, int nLines)
+void			LexerParser::addOperand(t_vector::iterator i, std::vector<Token> &newTokenList, t_lexem nextLexem, Rule &newRule, ExpertSystem &expertSystem, int nLines, t_lexem lastImplie)
 {
 	bool negSign = false;
 	if (i - 1 >= _lexedFile.begin() && (i - 1)->second == NEGATIVE)
@@ -316,7 +316,14 @@ void			LexerParser::addOperand(t_vector::iterator i, std::vector<Token> &newToke
 			{
 				newRule.setConsequents(newTokenList);
 				expertSystem.addRule(newRule);
-				newRule.clear();
+				if (lastImplie == DOUBLE_IMPLIES)
+				{
+					Rule tmp;
+					tmp.setAntecedents(newRule.getAllConsequents());
+					tmp.setConsequents(newRule.getAllAntecedents());
+					expertSystem.addRule(tmp);
+				}
+				newRule.clear(); 
 			}
 			newTokenList.clear();
 		}
@@ -347,7 +354,7 @@ ExpertSystem	LexerParser::Parser()
 	t_lexem 			nextLexem;
 
 	int 				nLines = 1;
-
+	t_lexem				lastImplie;
 	t_vector::iterator	i = _lexedFile.begin();
 
 	while (i != _lexedFile.end())
@@ -370,7 +377,10 @@ ExpertSystem	LexerParser::Parser()
 		else if (i->second == C_BRACKET)
 			addCBracket(i, newTokenList, nextLexem, newRule, expertSystem);
 		else if (i->second == DOUBLE_IMPLIES || i->second == IMPLIES)
+		{
 			addImplies(newTokenList, nextLexem, newRule, nLines);
+			lastImplie = i->second;
+		}
 		else if (i->second == AND || i->second == OR || i->second == XOR)
 			addOperator(i, newTokenList, nextLexem);
 		else if (i->second == FACTS)
@@ -378,7 +388,7 @@ ExpertSystem	LexerParser::Parser()
 		else if (i->second == QUERY)
 			addQueries(nextLexem);
 		else if (i->second == OPERAND)
-			addOperand(i, newTokenList, nextLexem, newRule, expertSystem, nLines);
+			addOperand(i, newTokenList, nextLexem, newRule, expertSystem, nLines, lastImplie);
 		i++;
 	}
 

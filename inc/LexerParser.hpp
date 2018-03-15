@@ -39,14 +39,14 @@ class LexerParser
 		t_lexem			findNextLexem(t_vector::iterator i);
 		ExpertSystem	Parser();
 
-		void			addOBracket(t_vector::iterator i, std::vector<Token> &newTokenList, t_lexem nextLexem);
-		void			addNegative(t_lexem nextLexem);
-		void			addCBracket(t_vector::iterator i, std::vector<Token> &newTokenList, t_lexem nextLexem, Rule &newRule, ExpertSystem &expertSystem);
-		void			addImplies(std::vector<Token> &newTokenList, t_lexem nextLexem, Rule &newRule, int nLines);
-		void			addOperator(t_vector::iterator i, std::vector<Token> &newTokenList, t_lexem nextLexem);
-		void			addFacts(t_lexem nextLexem);
-		void			addQueries(t_lexem nextLexem);
-		void			addOperand(t_vector::iterator i, std::vector<Token> &newTokenList, t_lexem nextLexem, Rule &newRule, ExpertSystem &expertSystem, int nLines);
+		void			addOBracket(t_vector::iterator, std::vector<Token> &, t_lexem);
+		void			addNegative(t_lexem);
+		void			addCBracket(t_vector::iterator, std::vector<Token> &, t_lexem, Rule &, ExpertSystem &);
+		void			addImplies(std::vector<Token> &, t_lexem, Rule &, int);
+		void			addOperator(t_vector::iterator, std::vector<Token> &, t_lexem);
+		void			addFacts(t_lexem);
+		void			addQueries(t_lexem);
+		void			addOperand(t_vector::iterator, std::vector<Token> &, t_lexem, Rule &, ExpertSystem &, int, t_lexem);
 
 		class	InvalidLineException : public std::exception
 		{
