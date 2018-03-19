@@ -1,9 +1,10 @@
 # "("
 
 # TRUE
-( C => E
-( ! A + B + C   => D
+( C | F) + ((D ^ B) | A) => E
+( ! A ^ B) + C   => D
+ ! A | B) + C   => D
+! A | B + C   => D
 
-#FALSE
-(
-+ A | B => C
+=A
+?DC

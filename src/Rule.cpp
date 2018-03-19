@@ -84,13 +84,9 @@ void				Rule::reorderTokenArrays()
 	for (i = _antecedents.begin(); i != _antecedents.end(); i++)
 	{
 		if (i->getType() == OPERAND)
-		{
-			std::cout << "___1" << std::endl;
 			finalOrder.push_back(*i);
-		}
 		else if (i->getType() != C_BRACKET && i->getType() != O_BRACKET)
 		{
-			std::cout << "___2" << std::endl;
 			if (operators.empty() || operators.back().getType() > i->getType())
 				operators.push_back(*i);
 			else
@@ -100,23 +96,20 @@ void				Rule::reorderTokenArrays()
 					finalOrder.push_back(operators.back());
 					operators.pop_back();
 				}
-				finalOrder.push_back(*i);
+				operators.push_back(*i);
 			}
 		}
 		else if (i->getType() == O_BRACKET)
-		{
-			std::cout << "___3" << std::endl;
 			operators.push_back(*i);
-		}
 		else if (i->getType() == C_BRACKET)
 		{
-			std::cout << "___4" << std::endl;
 			while (!operators.empty() && operators.back().getType() != O_BRACKET)
 			{
 				finalOrder.push_back(operators.back());
 				operators.pop_back();
 			}
-			operators.pop_back();
+			if (!operators.empty())
+				operators.pop_back();
 		}
 	}
 	while (!operators.empty())
@@ -124,8 +117,6 @@ void				Rule::reorderTokenArrays()
 		finalOrder.push_back(operators.back());
 		operators.pop_back();
 	}
-	std::cout << "+++++++++++++++++++ "  << std::endl;
-	printTokenList(finalOrder);
 	_antecedents = finalOrder;
 }
 

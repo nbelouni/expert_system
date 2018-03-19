@@ -6,8 +6,6 @@ LexerParser::LexerParser(void)
 	_queries = false;
 	_brackets = 0;
 	_lexem.push_back("#");
-	_lexem.push_back("(");
-	_lexem.push_back(")");
 	_lexem.push_back("!");
 	_lexem.push_back("+");
 	_lexem.push_back("|");
@@ -17,6 +15,8 @@ LexerParser::LexerParser(void)
 	_lexem.push_back("[A-Z]");
 	_lexem.push_back("=");
 	_lexem.push_back("?");
+	_lexem.push_back("(");
+	_lexem.push_back(")");
 }
 
 LexerParser::LexerParser(LexerParser const &lp)
@@ -162,8 +162,10 @@ void		LexerParser::Lexer(char const *fileName)
 					}
 				}
 				if (j == 12)
+				{
 					addExceptionMessage("Syntax error: line " + std::to_string(line_index) + ": \"" + *i + "\" unknown.");
-
+					i++;
+				}
 			}
 			std::pair<std::string, e_lexem>	tmp("", ENDL);
 			_lexedFile.push_back(tmp);
@@ -210,7 +212,7 @@ void			LexerParser::addOBracket(t_vector::iterator i, std::vector<Token> &newTok
 {
 	if (_facts == true || _queries == true)
 		addExceptionMessage(_factsAndQueriesError);
-	else if (nextLexem != NEGATIVE && nextLexem != OPERAND)
+	else if (nextLexem != O_BRACKET && nextLexem != NEGATIVE && nextLexem != OPERAND)
 		addExceptionMessage(_error);
 
 	newTokenList.push_back(Token(i->second, NULL, NULL, false));
@@ -438,11 +440,9 @@ LexerParser::InvalidLineException &LexerParser::InvalidLineException::operator=(
 char const	*LexerParser::InvalidLineException::what() const throw()
 {
 	std::string ret;
-	std::cout << "HERE " << _messages.size() << std::endl;
 	for (size_t i = 0; i < _messages.size(); i++)
 	{
 		ret.append(_messages[i] + "\n");
-		std::cout << "message : " << _messages[i] << std::endl;
 	}
 	return (ret.c_str());
 }

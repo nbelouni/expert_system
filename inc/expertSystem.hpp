@@ -17,8 +17,6 @@
 typedef enum	e_lexem
 {
 	COMMENT,
-	O_BRACKET,
-	C_BRACKET,
 	NEGATIVE,
 	AND,
 	OR,
@@ -28,6 +26,8 @@ typedef enum	e_lexem
 	OPERAND,
 	FACTS,
 	QUERY,
+	O_BRACKET,
+	C_BRACKET,
 	ENDL
 }				t_lexem;
 
