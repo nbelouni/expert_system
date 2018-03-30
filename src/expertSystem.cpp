@@ -70,6 +70,7 @@ void				ExpertSystem::addRule(Rule const & rule)
 {
 	std::vector<Token> tmpToken = rule.getAllAntecedents();
 	Operand *tmpOperand = NULL;
+
 	for (size_t i = 0; i < tmpToken.size(); i++)
 	{
 		if (tmpToken[i].getType() == OPERAND)
@@ -125,10 +126,30 @@ void				ExpertSystem::printRules()
 {
 	for (size_t i = 0; i < _rules.size(); i++)
 	{
-		std::cout << " Rule " << i << " : " << std::endl;
+		std::cout << " Rule " << _rules[i].getId() << " : " << std::endl;
 		std::cout << "Antecedents : " << std::endl;
 		printTokenList(_rules[i].getAllAntecedents());
 		std::cout << "Consequents : " << std::endl;
 		printTokenList(_rules[i].getAllConsequents());
 	}
+}
+
+t_status			ExpertSystem::resolveQuery(char const operandName)
+{
+	std::vector<Token>		tokenArray = findOperand(operandName)->getAntecedent(0)->getAllAntecedents();
+	std::vector<Token>		operands;
+
+	while (tokenArray.size() > 0)
+	{
+		if (tokenArray.front().getType() == OPERAND)	
+		{
+			operands.push_back(tokenArray.front());
+			tokenArray.erase(tokenArray.begin());
+		}
+		else
+		{
+//			FAIT DES TRUCS
+		}
+	}
+	return FALSE;
 }

@@ -33,8 +33,8 @@ typedef enum	e_lexem
 
 typedef enum	e_status
 {
-	FALSE,
 	TRUE,
+	FALSE,
 	UNDEFINED,
 	NOT_RESOLVED
 }				t_status;
@@ -44,14 +44,14 @@ typedef enum	e_status
 #include "Rule.hpp"
 #include "LexerParser.hpp"
 
-t_status		andOperator(Operand const &first, Operand const &second);
-t_status		orOperator(Operand const &first, Operand const &second);
-t_status		xorOperator(Operand const &first, Operand const &second);
+t_status		andOperator(t_status const first, t_status const second);
+t_status		orOperator(t_status const first, t_status const second);
+t_status		xorOperator(t_status const first, t_status const second);
 
 
 void			printTokenList(std::vector<Token> newTokenList);
-std::string			printLexem(t_lexem lex);
-std::string			printLexemValue(t_lexem lex);
+std::string		printLexem(t_lexem lex);
+std::string		printLexemValue(t_lexem lex);
 
 class Rule;
 
@@ -61,6 +61,7 @@ class ExpertSystem
 		std::vector<Operand *>	_operands;
 		std::vector<Rule>		_rules;
 		std::queue<Operand *>	_queries;
+		std::vector<int>		_rulesIds;
 
 	public:
 		ExpertSystem();
@@ -83,6 +84,8 @@ class ExpertSystem
 
 		void							printOperands();
 		void							printRules();
+
+		t_status						resolveQuery(char const);
 };
 
 #endif

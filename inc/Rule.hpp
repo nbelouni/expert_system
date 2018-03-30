@@ -10,14 +10,18 @@
 class Rule
 {
 	private:
+		int					_id;
 		std::vector<Token>	_antecedents;
 		std::vector<Token>	_consequents;
+		static int			_nRules;
 
 	public:
+
 		Rule();
 		Rule(Rule const &);
 		~Rule();
 
+		int					getId() const;
 		Rule				&operator=(Rule const &);
 		std::vector<Token> const	&getAllAntecedents() const ;
 		Token				*getAntecedent(int);

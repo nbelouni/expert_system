@@ -1,12 +1,18 @@
 #include "Rule.hpp"
 
+int Rule::_nRules = 0;
+
 Rule::Rule()
 {
+	_id = _nRules;
+	_nRules++;
 }
 
 Rule::Rule(Rule const &rhs)
 {
 	*this = rhs;
+//	_id = _nRules;
+//	_nRules++;
 }
 Rule::~Rule()
 {
@@ -19,11 +25,18 @@ Rule				&Rule::operator=(Rule const &rhs)
 	const std::vector<Token> &tmp1 = rhs.getAllAntecedents();
 	const std::vector<Token> &tmp2 = rhs.getAllConsequents();
 
+	_id = rhs.getId();
 	for (size_t i = 0; i < tmp1.size(); i++)
 		_antecedents.push_back(tmp1[i]);
 	for (size_t i = 0; i < tmp2.size(); i++)
 		_consequents.push_back(tmp2[i]);
 	return *this;
+}
+
+
+int 				Rule::getId() const
+{
+	return _id;
 }
 
 const std::vector<Token> &Rule::getAllAntecedents() const 

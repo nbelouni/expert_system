@@ -1,10 +1,22 @@
 #include "expertSystem.hpp"
 
-t_status		andOperator(Operand const &first, Operand const &second)
+t_status		andOperator(t_status const first, t_status const second)
 {
-	if (first.getIsResolved() == true && second.getIsResolved() == true)
+	if (first != NOT_RESOLVED && second != NOT_RESOLVED)
 	{
-		if (first.getValue() == true && first.getValue() == true)
+		if (first == TRUE && second == TRUE)
+			return TRUE;
+		else
+			return FALSE;
+	}
+	return (NOT_RESOLVED);
+}
+
+t_status		orOperator(t_status const first, t_status const second)
+{
+	if (first != NOT_RESOLVED && second != NOT_RESOLVED)
+	{
+		if (first == TRUE || second == TRUE)
 			return TRUE;
 		else 
 			return FALSE;
@@ -12,25 +24,13 @@ t_status		andOperator(Operand const &first, Operand const &second)
 	return (NOT_RESOLVED);
 }
 
-t_status		orOperator(Operand const &first, Operand const &second)
+t_status		xorOperator(t_status const first, t_status const second)
 {
-	if (first.getIsResolved() == true && second.getIsResolved() == true)
+	if (first != NOT_RESOLVED && second != NOT_RESOLVED)
 	{
-		if (first.getValue() == true || first.getValue() == true)
+		if (first == TRUE && second != TRUE)
 			return TRUE;
-		else 
-			return FALSE;
-	}
-	return (NOT_RESOLVED);
-}
-
-t_status		xorOperator(Operand const &first, Operand const &second)
-{
-	if (first.getIsResolved() == true && second.getIsResolved() == true)
-	{
-		if (first.getValue() == true && first.getValue() == false)
-			return TRUE;
-		if (first.getValue() == false && first.getValue() == true)
+		if (first != TRUE && second == TRUE)
 			return TRUE;
 		else 
 			return FALSE;

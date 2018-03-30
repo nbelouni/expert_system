@@ -1,5 +1,5 @@
 G | V => X
 C <=> E
-A + B + C => D
+A + B | C + E=> D
 =CABG
 ?GVX

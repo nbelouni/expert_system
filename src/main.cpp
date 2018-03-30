@@ -12,7 +12,10 @@ int main(int argc, char **argv)
 		{
 			LexerParser tmp;
 			tmp.Lexer(argv[1]);
-			tmp.Parser();
+			ExpertSystem expSys = tmp.Parser();
+			expSys.printRules();
+			expSys.printOperands();
+
 		}
 	}
 	catch(std::exception &e)

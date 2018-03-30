@@ -82,7 +82,7 @@ void				Operand::printRules()
 	std::cout << "Antecedents : " << std::endl;
 	for (size_t i = 0; i < _antecedents.size(); i++)
 	{
-		std::cout << " Rule " << i << " : " << std::endl;
+		std::cout << " Rule " << _antecedents[i].getId() << " : " << std::endl;
 		printTokenList(_antecedents[i].getAllAntecedents());
 		printTokenList(_antecedents[i].getAllConsequents());
 	}
@@ -90,7 +90,7 @@ void				Operand::printRules()
 	std::cout << "Consequents : " << std::endl;
 	for (size_t i = 0; i < _consequents.size(); i++)
 	{
-		std::cout << " Rule " << i << " : " << std::endl;
+		std::cout << " Rule " << _consequents[i].getId() << " : " << std::endl;
 		printTokenList(_consequents[i].getAllAntecedents());
 		printTokenList(_consequents[i].getAllConsequents());
 	}
