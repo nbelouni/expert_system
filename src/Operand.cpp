@@ -1,6 +1,6 @@
 #include "Operand.hpp"
 
-Operand::Operand(const char c): _name(c), _value(false), _is_resolved(false)
+Operand::Operand(const char c): _name(c), _value(NOT_RESOLVED), _is_resolved(false)
 {
 }
 
@@ -18,17 +18,17 @@ Operand	&Operand::operator=(Operand const &rhs)
 	return (*this);
 }
 
-char	Operand::getName() const 
+char		Operand::getName() const 
 {
 	return (_name);
 }
 
-bool		Operand::getValue() const 
+t_status	Operand::getValue() const 
 {
 	return (_value);
 }
 
-void		Operand::setValue(bool value)
+void		Operand::setValue(t_status value)
 {
 	_value = value;
 }
@@ -94,33 +94,4 @@ void				Operand::printRules()
 		printTokenList(_consequents[i].getAllAntecedents());
 		printTokenList(_consequents[i].getAllConsequents());
 	}
-}
-
-/*
- *	Nested Classes
- */
-
-Operand::OperandAlreadyResolvedException::OperandAlreadyResolvedException(std::string s) : _message(s)
-{
-}
-
-Operand::OperandAlreadyResolvedException::OperandAlreadyResolvedException(OperandAlreadyResolvedException const &i)
-{
-	*this = i;
-}
-
-Operand::OperandAlreadyResolvedException::~OperandAlreadyResolvedException() throw()
-{
-	_message.clear();
-}
-
-Operand::OperandAlreadyResolvedException &Operand::OperandAlreadyResolvedException::operator=(OperandAlreadyResolvedException const &d)
-{
-	(void)d;
-	return *this;
-}
-
-char const	*Operand::OperandAlreadyResolvedException::what() const throw()
-{
-	return (_message.c_str());
 }

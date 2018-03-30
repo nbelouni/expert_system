@@ -272,7 +272,12 @@ void			LexerParser::addOperator(t_vector::iterator i, std::vector<Token> &newTok
 	else if (nextLexem != O_BRACKET && nextLexem != OPERAND && nextLexem != NEGATIVE)
 		addExceptionMessage(_error);
 
-	newTokenList.push_back(Token(i->second, NULL, NULL, false));
+	if (i->second == AND)
+	newTokenList.push_back(Token(i->second, NULL, andOperator, false));
+	if (i->second == OR)
+	newTokenList.push_back(Token(i->second, NULL, orOperator, false));
+	if (i->second == XOR)
+	newTokenList.push_back(Token(i->second, NULL, xorOperator, false));
 }
 
 void			LexerParser::addFacts(t_lexem nextLexem)

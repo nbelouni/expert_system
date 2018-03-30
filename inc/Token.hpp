@@ -7,7 +7,7 @@ class Operand;
 
 class Token
 {
-	typedef bool (*t_operator)(t_status const first, t_status const second) ;
+	typedef t_status (*t_operator)(t_status const first, t_status const second) ;
 	private:
 		t_lexem			_type;
 		Operand	*		_operand;

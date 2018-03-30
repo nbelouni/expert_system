@@ -93,6 +93,24 @@ void				ExpertSystem::addRule(Rule const & rule)
 	_rules.push_back(rule);
 }
 
+int					ExpertSystem::getNextRuleId(Operand const * const op) const
+{
+	size_t	i;
+	size_t	j;
+
+	if (op->getAllConsequents().size() > 0 && _rulesIds.size() == 0)
+		return 0;
+	for (i = 0; i < op->getAllConsequents().size(); i++)
+	{
+		for (j = 0; j < _rulesIds.size(); j++)
+		{
+			if (op->getConsequent(i)->getId() != _rulesIds[j])
+				return i;
+		}
+	}
+	return -1;
+}
+
 void				ExpertSystem::pushQuery(Operand *operand)
 {
 	_queries.push(operand);
@@ -136,20 +154,107 @@ void				ExpertSystem::printRules()
 
 t_status			ExpertSystem::resolveQuery(char const operandName)
 {
-	std::vector<Token>		tokenArray = findOperand(operandName)->getAntecedent(0)->getAllAntecedents();
-	std::vector<Token>		operands;
+	Operand					*currentOperand;
+	int						currentId;
+	const Rule				*currentRule;
+	std::list<t_status>	operandsStatus;
 
-	while (tokenArray.size() > 0)
+	currentOperand = findOperand(operandName);
+
+	currentId = getNextRuleId(currentOperand);
+
+//	std::cout << "currentId : " << currentId << std::endl;
+	if (currentId == -1)
 	{
-		if (tokenArray.front().getType() == OPERAND)	
+		if (currentOperand->getValue() == NOT_RESOLVED)
+			return FALSE;
+		else
+			return currentOperand->getValue();
+	}
+
+	currentRule = currentOperand->getConsequent(currentId);
+//	if (!currentRule)
+//		std::cout << "NO RULES " << std::endl;
+	_rulesIds.push_back(currentRule->getId());
+
+//		std::cout << "____0" << std::endl;
+	std::vector<Token>::const_iterator i;
+	for (i = currentRule->getAllAntecedents().begin(); i != currentRule->getAllAntecedents().end(); i++)
+	{
+		if (i->getType() == OPERAND)
 		{
-			operands.push_back(tokenArray.front());
-			tokenArray.erase(tokenArray.begin());
+//		std::cout << "____1" << std::endl;
+			if (i->getOperand()->getValue() == NOT_RESOLVED)
+			{
+				operandsStatus.push_back(resolveQuery(i->getOperand()->getName()));
+			}
+			else
+			{
+//		std::cout << "____2" << std::endl;
+				t_status status = i->getOperand()->getValue();
+	
+				if (i->getIsNegativeOperand() == true)
+				{
+					if (i->getOperand()->getValue() == TRUE)
+						status = FALSE;
+					else
+						status = TRUE;
+					
+				}
+				operandsStatus.push_back(status);
+			}
 		}
 		else
 		{
-//			FAIT DES TRUCS
+//		std::cout << "____3.0" << std::endl;
+//		std::cout << operandsStatus.size() << std::endl;
+//		std::cout << *operandsStatus.begin() << ", " << *(std::next(operandsStatus.begin())) << std::endl;
+			t_status tmp = i->getFunction() (*operandsStatus.begin(), *(std::next(operandsStatus.begin())));
+//		std::cout << "____3.1" << std::endl;
+			operandsStatus.pop_front();
+//		std::cout << "____3.2" << std::endl;
+			operandsStatus.pop_front();
+//		std::cout << "____3.3" << std::endl;
+			operandsStatus.push_front(tmp);
+//		std::cout << "____3.4" << std::endl;
 		}
 	}
-	return FALSE;
+	std::cout << operandsStatus.size() << std::endl;
+	if (currentOperand->getIsResolved() == 1 && operandsStatus.front() != currentOperand->getValue())
+	{
+		throw new OperandAlreadyResolvedException("Contradictory facts.");
+	}
+	currentOperand->setValue(operandsStatus.front());
+	currentOperand->setIsResolved(true);
+	return operandsStatus.front();
+}
+
+
+/*
+ *	Nested Classes
+ */
+
+ExpertSystem::OperandAlreadyResolvedException::OperandAlreadyResolvedException(std::string s) : _message(s)
+{
+}
+
+ExpertSystem::OperandAlreadyResolvedException::OperandAlreadyResolvedException(OperandAlreadyResolvedException const &i)
+{
+	*this = i;
+}
+
+ExpertSystem::OperandAlreadyResolvedException::~OperandAlreadyResolvedException() throw()
+{
+	_message.clear();
+}
+
+ExpertSystem::OperandAlreadyResolvedException &ExpertSystem::OperandAlreadyResolvedException::operator=(OperandAlreadyResolvedException const &d)
+{
+	(void)d;
+	return *this;
+}
+
+char const	*ExpertSystem::OperandAlreadyResolvedException::what() const throw()
+{
+	return (_message.c_str());
 }

@@ -10,11 +10,26 @@ int main(int argc, char **argv)
 			std::cerr << "Too many arguments." << std::endl;
 		else
 		{
-			LexerParser tmp;
-			tmp.Lexer(argv[1]);
-			ExpertSystem expSys = tmp.Parser();
+			LexerParser lP;
+			lP.Lexer(argv[1]);
+			ExpertSystem expSys = lP.Parser();
 			expSys.printRules();
 			expSys.printOperands();
+
+			Operand *tmp = expSys.popQuery();
+			while (tmp)
+			{
+				t_status s = expSys.resolveQuery(tmp->getName());
+				std::cout << "operand \"" << tmp->getName() << "\" : ";
+				std::cout << (
+					(s == TRUE) ?		"TRUE":
+					(s == FALSE) ?		"FALSE":
+					(s == UNDEFINED) ?	"UNDEFINED":
+										"NOT RESOLVED"
+				) ;
+				std::cout << std::endl;
+				tmp = expSys.popQuery();
+			}
 
 		}
 	}

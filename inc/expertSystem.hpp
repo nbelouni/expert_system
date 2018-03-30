@@ -2,15 +2,17 @@
 #ifndef EXPERT_SYSTEM_HPP
 # define EXPERT_SYSTEM_HPP
 
-#include <iostream>
+#include <algorithm>
+#include <exception>
 #include <fstream>
-#include <utility>
+#include <iostream>
+#include <list>
 #include <queue>
+#include <regex>
+#include <stdexcept>
 #include <string>
 #include <vector>
-#include <regex>
-#include <exception>
-#include <stdexcept>
+#include <utility>
 
 
 
@@ -79,6 +81,7 @@ class ExpertSystem
 		Rule							*getRule(int i);
 		void							addRule(const Rule &);
 
+		int								getNextRuleId(Operand const * const) const;
 		void							pushQuery(Operand *);
 		Operand							*popQuery();
 
@@ -86,6 +89,21 @@ class ExpertSystem
 		void							printRules();
 
 		t_status						resolveQuery(char const);
+
+		class	OperandAlreadyResolvedException: public std::exception
+		{
+			private:
+				std::string		_message;
+
+			public:
+				OperandAlreadyResolvedException(std::string);
+				OperandAlreadyResolvedException(OperandAlreadyResolvedException const &);
+				virtual ~OperandAlreadyResolvedException() throw();
+				virtual const char *what() const throw();
+		
+			private:
+			OperandAlreadyResolvedException &operator=(OperandAlreadyResolvedException const &);
+		};
 };
 
 #endif
