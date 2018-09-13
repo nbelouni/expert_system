@@ -46,7 +46,7 @@ class LexerParser
 		void			addOperator(t_vector::iterator, std::vector<Token> &, t_lexem);
 		void			addFacts(t_lexem);
 		void			addQueries(t_lexem);
-		void			addOperand(t_vector::iterator, std::vector<Token> &, t_lexem, Rule &, ExpertSystem &, int, t_lexem);
+		void			addOperand(t_vector::iterator, std::vector<Token> &, t_lexem, Rule &, ExpertSystem &, int, t_lexem *);
 
 		class	InvalidLineException : public std::exception
 		{

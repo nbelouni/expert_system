@@ -28,6 +28,7 @@ Rule				&Rule::operator=(Rule const &rhs)
 
 const std::vector<Token> &Rule::getAllAntecedents() const 
 {
+	
 	return (_antecedents);
 }
 
@@ -49,6 +50,17 @@ void				Rule::setAntecedents(std::vector<Token> rhs)
 {
 	for (size_t i = 0; i < rhs.size(); i++)
 		this->addAntecedent(rhs[i]);
+}
+
+
+void				Rule::setImplying(t_lexem l)
+{
+	_implying = l;
+}
+
+t_lexem				Rule::getImplying() const
+{
+	return _implying;
 }
 
 std::vector<Token>	const &Rule::getAllConsequents() const

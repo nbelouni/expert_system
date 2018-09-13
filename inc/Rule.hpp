@@ -12,7 +12,7 @@ class Rule
 	private:
 		std::vector<Token>	_antecedents;
 		std::vector<Token>	_consequents;
-
+		t_lexem				_implying;
 	public:
 		Rule();
 		Rule(Rule const &);
@@ -23,6 +23,9 @@ class Rule
 		Token				*getAntecedent(int);
 		void				addAntecedent(Token const &);
 		void				setAntecedents(std::vector<Token>);
+
+		void				setImplying(t_lexem l);
+		t_lexem				getImplying() const;
 
 		std::vector<Token> const &getAllConsequents() const ;
 		Token				*getConsequent(int);

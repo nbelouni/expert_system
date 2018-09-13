@@ -76,7 +76,11 @@ void				ExpertSystem::addRule(Rule const & rule)
 		{
 			tmpOperand = findOperand(tmpToken[i].getOperand()->getName());
 			if (tmpOperand)
+			{
 				tmpOperand->addAntecedent(rule);
+				if (rule.getImplying() == DOUBLE_IMPLIES)
+					tmpOperand->addConsequent(rule);
+			}
 		}
 	}
 	tmpToken = rule.getAllConsequents();
@@ -86,7 +90,11 @@ void				ExpertSystem::addRule(Rule const & rule)
 		{
 			tmpOperand = findOperand(tmpToken[i].getOperand()->getName());
 			if (tmpOperand)
+			{
 				tmpOperand->addConsequent(rule);
+				if (rule.getImplying() == DOUBLE_IMPLIES)
+					tmpOperand->addAntecedent(rule);
+			}
 		}
 	}
 	_rules.push_back(rule);
@@ -127,6 +135,7 @@ void				ExpertSystem::printRules()
 	{
 		std::cout << " Rule " << i << " : " << std::endl;
 		std::cout << "Antecedents : " << std::endl;
+
 		printTokenList(_rules[i].getAllAntecedents());
 		std::cout << "Consequents : " << std::endl;
 		printTokenList(_rules[i].getAllConsequents());

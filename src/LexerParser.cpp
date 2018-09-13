@@ -289,7 +289,7 @@ void			LexerParser::addQueries(t_lexem nextLexem)
 	_queries = true;
 }
 
-void			LexerParser::addOperand(t_vector::iterator i, std::vector<Token> &newTokenList, t_lexem nextLexem, Rule &newRule, ExpertSystem &expertSystem, int nLines, t_lexem lastImplie)
+void			LexerParser::addOperand(t_vector::iterator i, std::vector<Token> &newTokenList, t_lexem nextLexem, Rule &newRule, ExpertSystem &expertSystem, int nLines, t_lexem *lastImplie)
 {
 	bool negSign = false;
 	if (i - 1 >= _lexedFile.begin() && (i - 1)->second == NEGATIVE)
@@ -316,18 +316,17 @@ void			LexerParser::addOperand(t_vector::iterator i, std::vector<Token> &newToke
 			}
 			else
 			{
+				if (*lastImplie == DOUBLE_IMPLIES)
+					newRule.setImplying(DOUBLE_IMPLIES);
+				else
+					newRule.setImplying(IMPLIES);
+
 				newRule.setConsequents(newTokenList);
 				newRule.reorderTokenArrays();
 				expertSystem.addRule(newRule);
-//				expertSystem.printRules();
-				if (lastImplie == DOUBLE_IMPLIES)
-				{
-					Rule tmp;
-					tmp.setAntecedents(newRule.getAllConsequents());
-					tmp.setConsequents(newRule.getAllAntecedents());
-					expertSystem.addRule(tmp);
-				}
+
 				newRule.clear(); 
+				*lastImplie = NONE;
 			}
 			newTokenList.clear();
 		}
@@ -392,12 +391,13 @@ ExpertSystem	LexerParser::Parser()
 		else if (i->second == QUERY)
 			addQueries(nextLexem);
 		else if (i->second == OPERAND)
-			addOperand(i, newTokenList, nextLexem, newRule, expertSystem, nLines, lastImplie);
+			addOperand(i, newTokenList, nextLexem, newRule, expertSystem, nLines, &lastImplie);
 		i++;
 	}
 
 	if (expertSystem.getAllRules().empty() || !_facts || !_queries)
 		addExceptionMessage("Missing elements.");
+	else
 
 	try
 	{
@@ -408,7 +408,6 @@ ExpertSystem	LexerParser::Parser()
 		std::rethrow_exception(std::current_exception());
 	}
 
-//	expertSystem.printOperands();
 	return expertSystem;
 }
 

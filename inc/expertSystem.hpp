@@ -28,7 +28,8 @@ typedef enum	e_lexem
 	QUERY,
 	O_BRACKET,
 	C_BRACKET,
-	ENDL
+	ENDL,
+	NONE
 }				t_lexem;
 
 typedef enum	e_status
@@ -49,7 +50,7 @@ t_status		orOperator(Operand const &first, Operand const &second);
 t_status		xorOperator(Operand const &first, Operand const &second);
 
 
-void			printTokenList(std::vector<Token> newTokenList);
+void				printTokenList(std::vector<Token> newTokenList);
 std::string			printLexem(t_lexem lex);
 std::string			printLexemValue(t_lexem lex);
 
@@ -81,6 +82,25 @@ class ExpertSystem
 		void							pushQuery(Operand *);
 		Operand							*popQuery();
 
+/*
+**	resolve_query()
+**	{
+		for all rules in query.operand :
+			result = resolve rule
+			if result != old_result
+				error
+		query = result
+	}
+**
+**	reslove all _queries 
+**	{
+**		foreach _query()
+**		{
+**			resolve_query()
+**		}
+**	}
+**
+*/
 		void							printOperands();
 		void							printRules();
 };
