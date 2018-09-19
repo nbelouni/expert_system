@@ -1,12 +1,12 @@
 #include "Operand.hpp"
 
-Operand::Operand(const char c): _name(c), _value(false), _is_resolved(false)
+Operand::Operand(const char c): _name(c), _value(FALSE), _is_resolved(false), _initial_fact(false)
 {
 }
 
 Operand::~Operand()
 {
-//	_antecedents.clear();
+	_antecedents.clear();
 	_consequents.clear();
 }
 
@@ -23,12 +23,12 @@ char	Operand::getName() const
 	return (_name);
 }
 
-bool		Operand::getValue() const 
+t_status	Operand::getValue() const 
 {
 	return (_value);
 }
 
-void		Operand::setValue(bool value)
+void		Operand::setValue(t_status value)
 {
 	_value = value;
 }
@@ -41,6 +41,16 @@ bool		Operand::getIsResolved() const
 void		Operand::setIsResolved(bool value)
 {
 	_is_resolved = value;
+}
+
+bool		Operand::getInitialFact() const
+{
+    return _initial_fact;
+}
+
+void	    Operand::setInitialFact(bool value)
+{
+    _initial_fact = value;
 }
 
 const std::vector<Rule>	Operand::getAllAntecedents() const

@@ -116,6 +116,53 @@ Operand				*ExpertSystem::popQuery()
 	return nextQuery;
 }
 
+t_status			ExpertSystem::resolveRule(const Rule &rule, std::vector<Operand *> &path)
+{
+	(void)rule;
+	(void)path;
+	return FALSE;
+}
+
+t_status            ExpertSystem::resolveQuery(Operand &query, std::vector<Operand *> &path)
+{
+	for (std::vector<Operand *>::iterator i = path.begin(); i != path.end(); i++)
+	{
+		if ((*i)->getName() == query.getName())
+			return (*i)->getValue();
+	}
+	path.push_back(&query);
+
+	t_status result = NOT_RESOLVED;
+	t_status tmp_result = NOT_RESOLVED;
+
+	for (std::vector<Rule>::const_iterator i = query.getAllAntecedents().begin(); i < query.getAllAntecedents().end(); i++)
+	{
+		tmp_result = resolveRule(*i, path);
+		if (result == NOT_RESOLVED)
+			result = tmp_result;
+		else if (result != tmp_result)
+			return NOT_RESOLVED;
+	}
+
+	return result;
+}
+
+void                ExpertSystem::resolveAllQueries()
+{
+	t_status				result = NOT_RESOLVED;
+	std::vector<Operand *>	path;
+	while (!_queries.empty())
+	{
+		result = resolveQuery(*popQuery(), path);
+		std::cout << (result == NOT_RESOLVED ?	"NOT_RESOLVED" :
+					 result == UNDEFINED ?		"UNDEFINED" :
+					 result == TRUE ?			"TRUE" :
+												"FALSE")
+		<< std::endl;
+	}
+	
+}
+
 void				ExpertSystem::printOperands()
 {
 	std::cout << "Operands : " << std::endl;

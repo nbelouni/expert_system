@@ -88,6 +88,9 @@ class ExpertSystem
 		void							pushQuery(Operand *);
 		Operand							*popQuery();
 
+        t_status			            resolveRule(const Rule &rule, std::vector<Operand *> &path);
+        t_status                        resolveQuery(Operand &, std::vector<Operand *> &);
+        void                            resolveAllQueries();
 /*
 **	resolve_query()
 **	{

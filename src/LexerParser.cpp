@@ -350,6 +350,7 @@ void			LexerParser::addOperand(t_vector::iterator i, std::vector<void *> args)//
 			addExceptionMessage("Unexpected token : line " + std::to_string(CAST_INT(args[4])) + " : " + i->first + " does not exist.");
 		CAST_EXPERT_SYSTEM(args[3])->findOperand(i->first.c_str()[0])->setValue(TRUE);
 		CAST_EXPERT_SYSTEM(args[3])->findOperand(i->first.c_str()[0])->setIsResolved(TRUE);
+		CAST_EXPERT_SYSTEM(args[3])->findOperand(i->first.c_str()[0])->setInitialFact(TRUE);
 	}
 	else if (_facts == true && _queries == true)
 	{

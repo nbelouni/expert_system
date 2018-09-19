@@ -15,6 +15,7 @@ int main(int argc, char **argv)
 			ExpertSystem expertSystem = tmp.Parser();
 			expertSystem.printOperands();
 			expertSystem.printRules();
+            expertSystem.resolveAllQueries();
 		}
 	}
 	catch(std::exception &e)

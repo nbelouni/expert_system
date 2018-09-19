@@ -9,9 +9,10 @@ class Token;
 class Operand
 {
 	private:
-		 char		_name;
-		bool		_value;
+		char		_name;
+	    t_status	_value;
 		bool		_is_resolved;
+		bool		_initial_fact;
 
 		std::vector<Rule>	_antecedents;
 		
@@ -26,11 +27,14 @@ class Operand
 
 		char						getName() const ;
 
-		bool						getValue() const ;
-		void						setValue(bool);
+		t_status					getValue() const ;
+		void						setValue(t_status);
                         
 		bool						getIsResolved() const;
 		void						setIsResolved(bool);
+
+		bool						getInitialFact() const ;
+		void						setInitialFact(bool);
 
 		const std::vector<Rule>		getAllAntecedents() const;
 		const Rule					*getAntecedent(int) const;
