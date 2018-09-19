@@ -1,10 +1,13 @@
 #include "expertSystem.hpp"
 
-t_status		andOperator(Operand const &first, Operand const &second)
+t_status		andOperator(Token const &first, Token const &second)
 {
-	if (first.getIsResolved() == true && second.getIsResolved() == true)
+	bool first_value = first.getIsNegativeOperand() ? false : true;
+	bool second_value = second.getIsNegativeOperand() ? false : true;
+	if (first.getOperand()->getIsResolved() == true && second.getOperand()->getIsResolved() == true)
+
 	{
-		if (first.getValue() == true && first.getValue() == true)
+		if (first.getOperand()->getValue() == first_value && second.getOperand()->getValue() == second_value)
 			return TRUE;
 		else 
 			return FALSE;
@@ -12,11 +15,14 @@ t_status		andOperator(Operand const &first, Operand const &second)
 	return (NOT_RESOLVED);
 }
 
-t_status		orOperator(Operand const &first, Operand const &second)
+t_status		orOperator(Token const &first, Token const &second)
 {
-	if (first.getIsResolved() == true && second.getIsResolved() == true)
+	bool first_value = first.getIsNegativeOperand() ? false: true;
+	bool second_value = second.getIsNegativeOperand() ? false: true;
+
+	if (first.getOperand()->getIsResolved() == true && second.getOperand()->getIsResolved() == true)
 	{
-		if (first.getValue() == true || first.getValue() == true)
+		if (first.getOperand()->getValue() == first_value || second.getOperand()->getValue() == second_value)
 			return TRUE;
 		else 
 			return FALSE;
@@ -24,13 +30,16 @@ t_status		orOperator(Operand const &first, Operand const &second)
 	return (NOT_RESOLVED);
 }
 
-t_status		xorOperator(Operand const &first, Operand const &second)
+t_status		xorOperator(Token const &first, Token const &second)
 {
-	if (first.getIsResolved() == true && second.getIsResolved() == true)
+	bool first_value = first.getIsNegativeOperand() ? false: true;
+	bool second_value = second.getIsNegativeOperand() ? false: true;
+
+	if (first.getOperand()->getIsResolved() == true && second.getOperand()->getIsResolved() == true)
 	{
-		if (first.getValue() == true && first.getValue() == false)
+		if (first.getOperand()->getValue() == first_value && second.getOperand()->getValue() == (!second_value))
 			return TRUE;
-		if (first.getValue() == false && first.getValue() == true)
+		if (first.getOperand()->getValue() == (!first_value) && second.getOperand()->getValue() == second_value)
 			return TRUE;
 		else 
 			return FALSE;
