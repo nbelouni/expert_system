@@ -10,9 +10,18 @@ class LexerParser
 {
 	typedef	std::vector<std::pair<std::string, t_lexem>> t_vector;
 
+    typedef void (LexerParser::*addLexemFunction)(t_vector::iterator, std::vector<void *>);
+    typedef struct              s_ash_lexem
+    {
+        std::string             value;
+        t_lexem                 index;
+        std::string             debug_value;
+        addLexemFunction        f;
+    }                           t_ash_lexem;
+
 	private:
 		t_vector					_lexedFile;
-		std::vector<std::string>	_lexem;
+		std::vector<t_ash_lexem>	_lexem;
 		std::string 				_error;
 		std::string 				_factsAndQueriesError;
 		bool						_facts;
@@ -38,15 +47,14 @@ class LexerParser
 
 		t_lexem			findNextLexem(t_vector::iterator i);
 		ExpertSystem	Parser();
-
-		void			addOBracket(t_vector::iterator, std::vector<Token> &, t_lexem);
-		void			addNegative(t_lexem);
-		void			addCBracket(t_vector::iterator, std::vector<Token> &, t_lexem, Rule &, ExpertSystem &);
-		void			addImplies(std::vector<Token> &, t_lexem, Rule &, int);
-		void			addOperator(t_vector::iterator, std::vector<Token> &, t_lexem);
-		void			addFacts(t_lexem);
-		void			addQueries(t_lexem);
-		void			addOperand(t_vector::iterator, std::vector<Token> &, t_lexem, Rule &, ExpertSystem &, int, t_lexem *);
+		void			addOBracket(t_vector::iterator, std::vector<void *>);
+		void			addNegative(t_vector::iterator,  std::vector<void *>);
+		void			addCBracket(t_vector::iterator, std::vector<void *>);
+		void			addImplies(t_vector::iterator, std::vector<void *>);
+		void			addOperator(t_vector::iterator, std::vector<void *>);
+		void			addFacts(t_vector::iterator,  std::vector<void *>);
+		void			addQueries(t_vector::iterator,  std::vector<void *>);
+		void			addOperand(t_vector::iterator,  std::vector<void *>);
 
 		class	InvalidLineException : public std::exception
 		{

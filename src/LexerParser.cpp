@@ -5,18 +5,18 @@ LexerParser::LexerParser(void)
 	_facts = false;
 	_queries = false;
 	_brackets = 0;
-	_lexem.push_back("#");
-	_lexem.push_back("!");
-	_lexem.push_back("+");
-	_lexem.push_back("|");
-	_lexem.push_back("^");
-	_lexem.push_back("<=>");
-	_lexem.push_back("=>");
-	_lexem.push_back("[A-Z]");
-	_lexem.push_back("=");
-	_lexem.push_back("?");
-	_lexem.push_back("(");
-	_lexem.push_back(")");
+	_lexem.push_back(t_ash_lexem{"#", COMMENT, "COMMENT", nullptr});
+	_lexem.push_back(t_ash_lexem{"!", NEGATIVE, "NEGATIVE", &LexerParser::addNegative});
+	_lexem.push_back(t_ash_lexem{"+", AND, "AND", &LexerParser::addOperator});
+	_lexem.push_back(t_ash_lexem{"|", OR, "OR", &LexerParser::addOperator});
+	_lexem.push_back(t_ash_lexem{"^", XOR, "XOR", &LexerParser::addOperator});
+	_lexem.push_back(t_ash_lexem{"<=>", DOUBLE_IMPLIES, "DOUBLE_IMPLIES", &LexerParser::addImplies});
+	_lexem.push_back(t_ash_lexem{"=>", IMPLIES, "IMPLIES", &LexerParser::addImplies});
+	_lexem.push_back(t_ash_lexem{"[A-Z]", OPERAND, "OPERAND", &LexerParser::addOperand});
+	_lexem.push_back(t_ash_lexem{"=", FACTS, "FACTS", &LexerParser::addFacts});
+	_lexem.push_back(t_ash_lexem{"?", QUERY, "QUERY", &LexerParser::addQueries});
+	_lexem.push_back(t_ash_lexem{"(", O_BRACKET, "O_BRACKET", &LexerParser::addOBracket});
+	_lexem.push_back(t_ash_lexem{")", C_BRACKET, "C_BRACKET", &LexerParser::addCBracket});
 }
 
 LexerParser::LexerParser(LexerParser const &lp)
@@ -26,7 +26,7 @@ LexerParser::LexerParser(LexerParser const &lp)
 
 LexerParser::~LexerParser(void)
 {
-	clear();
+    clear();
 }
 
 LexerParser		&LexerParser::operator=(LexerParser const &rhs)
@@ -39,6 +39,7 @@ void		LexerParser::clear(void)
 {
 	_lexedFile.clear();
 	_lexem.clear();
+	_exception.clear();
 }
 
 /*
@@ -139,14 +140,14 @@ void		LexerParser::Lexer(char const *fileName)
 			{
 				int j = 0;
 
-				if (!(std::strncmp(&*i, _lexem[COMMENT].c_str(), 1)) || *i == 0)
+				if (!(std::strncmp(&*i, _lexem[COMMENT].value.c_str(), 1)) || *i == 0)
 					break;
 				for (j = 1; j < 12; j++)
 				{
 
-					int lexem_length = (j == OPERAND) ? 1 : _lexem[j].length();
+					int lexem_length = (j == OPERAND) ? 1 : _lexem[j].value.length();
 
-					if (!std::strncmp(&*i, _lexem[j].c_str(), lexem_length) ||
+					if (!std::strncmp(&*i, _lexem[j].value.c_str(), lexem_length) ||
 					(j == OPERAND && *i >= 'A' && *i <= 'Z'))
 					{
 						char str[lexem_length + 1];
@@ -208,26 +209,27 @@ t_lexem			LexerParser::findNextLexem(t_vector::iterator i)
 	return ENDL;
 }
 
-void			LexerParser::addOBracket(t_vector::iterator i, std::vector<Token> &newTokenList, t_lexem nextLexem)
+void			LexerParser::addOBracket(t_vector::iterator i, std::vector<void *> args) //[ [0] = std::vector<Token> &newTokenList, [1] = t_lexem nextLexem]
 {
 	if (_facts == true || _queries == true)
 		addExceptionMessage(_factsAndQueriesError);
-	else if (nextLexem != O_BRACKET && nextLexem != NEGATIVE && nextLexem != OPERAND)
+	else if (CAST_T_LEXEM(args[1]) != O_BRACKET && CAST_T_LEXEM(args[1]) != NEGATIVE && CAST_T_LEXEM(args[1]) != OPERAND)
 		addExceptionMessage(_error);
 
-	newTokenList.push_back(Token(i->second, NULL, NULL, false));
+	CAST_TOKEN_VECTOR(args[0])->push_back(Token(i->second, NULL, NULL, false));
 	_brackets += 1;
 }
 
-void			LexerParser::addNegative(t_lexem nextLexem)
+void			LexerParser::addNegative(t_vector::iterator i, std::vector<void *> args)// [[0] = t_lexem nextLexem]
 {
+	static_cast<void>(i);
 	if (_facts == true || _queries == true)
 		addExceptionMessage(_factsAndQueriesError);
-	else if (nextLexem != O_BRACKET && nextLexem != OPERAND)
+	else if (CAST_T_LEXEM(args[1]) != O_BRACKET && CAST_T_LEXEM(args[1]) != OPERAND)
 		addExceptionMessage(_error);
 }
 
-void			LexerParser::addCBracket(t_vector::iterator i, std::vector<Token> &newTokenList, t_lexem nextLexem, Rule &newRule, ExpertSystem &expertSystem)
+void			LexerParser::addCBracket(t_vector::iterator i, std::vector<void *> args)//[[0] =  std::vector<Token> &newTokenList,[1] = t_lexem nextLexem,[2] = Rule &newRule,[3] = ExpertSystem &expertSystem]
 {
 	if (_facts == true || _queries == true)
 		addExceptionMessage(_factsAndQueriesError);
@@ -236,60 +238,63 @@ void			LexerParser::addCBracket(t_vector::iterator i, std::vector<Token> &newTok
 	if (_brackets < 0)
 		addExceptionMessage(_error + " : parse _error near ')'");
 
-	newTokenList.push_back(Token(i->second, NULL, NULL, false));
+	CAST_TOKEN_VECTOR(args[0])->push_back(Token(i->second, NULL, NULL, false));
 
-	if (nextLexem == NEGATIVE || nextLexem == OPERAND || nextLexem == O_BRACKET)
+	if (CAST_T_LEXEM(args[1]) == NEGATIVE || CAST_T_LEXEM(args[1]) == OPERAND || CAST_T_LEXEM(args[1]) == O_BRACKET)
 	{
-		if (newRule.getAllAntecedents().empty())
+		if (CAST_RULE(args[2])->getAllAntecedents().empty())
 			addExceptionMessage(_error);
 
-		newRule.setConsequents(newTokenList);
-		newTokenList.clear();
-		expertSystem.addRule(newRule);
-		newRule.clear();
+		CAST_RULE(args[2])->setConsequents(*CAST_TOKEN_VECTOR(args[0]));
+		CAST_TOKEN_VECTOR(args[0])->clear();
+		CAST_EXPERT_SYSTEM(args[3])->addRule(*CAST_RULE(args[2]));
+		CAST_RULE(args[2])->clear();
 	}
 }
 
-void			LexerParser::addImplies(std::vector<Token> &newTokenList, t_lexem nextLexem, Rule &newRule, int nLines)
+void			LexerParser::addImplies(t_vector::iterator i, std::vector<void *> args)//[[0]std::vector<Token> &newTokenList,[1] t_lexem nextLexem,[2] Rule &newRule,[3] = 0 , [4] = int nLines]
 {
+	static_cast<void>(i);
 	if (_facts == true || _queries == true)
 		addExceptionMessage(_factsAndQueriesError);
-	else if ((nextLexem != O_BRACKET && nextLexem != OPERAND && nextLexem != NEGATIVE) || newTokenList.size() == 0)
+	else if ((CAST_T_LEXEM(args[1]) != O_BRACKET && CAST_T_LEXEM(args[1]) != OPERAND && CAST_T_LEXEM(args[1]) != NEGATIVE) || CAST_TOKEN_VECTOR(args[0])->size() == 0)
 		addExceptionMessage(_error);
-	else if (!newRule.getAllAntecedents().empty())
-		addExceptionMessage("Unexpected token : line " + std::to_string(nLines) + " : the expression must contain only one '=>'.");
+	else if (!CAST_RULE(args[2])->getAllAntecedents().empty())
+		addExceptionMessage("Unexpected token : line " + std::to_string(CAST_INT(args[4])) + " : the expression must contain only one '=>'.");
 	else if (_brackets > 0)
-		addExceptionMessage("Unexpected token : line " + std::to_string(nLines) + " : '(' not closed.");
+		addExceptionMessage("Unexpected token : line " + std::to_string(CAST_INT(args[4])) + " : '(' not closed.");
 
-	newRule.setAntecedents(newTokenList);
-	newTokenList.clear();
+	CAST_RULE(args[2])->setAntecedents(*CAST_TOKEN_VECTOR(args[0]));
+	CAST_TOKEN_VECTOR(args[0])->clear();
 }
 
-void			LexerParser::addOperator(t_vector::iterator i, std::vector<Token> &newTokenList, t_lexem nextLexem)
+void			LexerParser::addOperator(t_vector::iterator i, std::vector<void *> args)//[[0] std::vector<Token> &newTokenList,[1] t_lexem nextLexem]
 {
 	if (_facts == true || _queries == true)
 		addExceptionMessage(_factsAndQueriesError);
-	else if (nextLexem != O_BRACKET && nextLexem != OPERAND && nextLexem != NEGATIVE)
+	else if (CAST_T_LEXEM(args[1]) != O_BRACKET && CAST_T_LEXEM(args[1]) != OPERAND && CAST_T_LEXEM(args[1]) != NEGATIVE)
 		addExceptionMessage(_error);
 
-	newTokenList.push_back(Token(i->second, NULL, NULL, false));
+	CAST_TOKEN_VECTOR(args[0])->push_back(Token(i->second, NULL, NULL, false));
 }
 
-void			LexerParser::addFacts(t_lexem nextLexem)
+void			LexerParser::addFacts(t_vector::iterator i, std::vector<void *> args)//[[0] = 0, [1]t_lexem nextLexem]
 {
-	if (nextLexem != OPERAND && nextLexem != QUERY)
+	static_cast<void>(i);
+	if (CAST_T_LEXEM(args[1]) != OPERAND && CAST_T_LEXEM(args[1]) != QUERY)
 		addExceptionMessage(_error);
 	_facts = true;
 }
 
-void			LexerParser::addQueries(t_lexem nextLexem)
+void			LexerParser::addQueries(t_vector::iterator i, std::vector<void *> args)//[[0]t_lexem nextLexem]
 {
-	if (nextLexem != OPERAND || _facts == false)
+	static_cast<void>(i);
+	if (CAST_T_LEXEM(args[1]) != OPERAND || _facts == false)
 		addExceptionMessage(_error);
 	_queries = true;
 }
 
-void			LexerParser::addOperand(t_vector::iterator i, std::vector<Token> &newTokenList, t_lexem nextLexem, Rule &newRule, ExpertSystem &expertSystem, int nLines, t_lexem *lastImplie)
+void			LexerParser::addOperand(t_vector::iterator i, std::vector<void *> args)//[[0]std::vector<Token> &newTokenList,[1] t_lexem nextLexem,[2] Rule &newRule,[3] ExpertSystem &expertSystem,[4] int nLines,[5] t_lexem *lastImpliyng]
 {
 	bool negSign = false;
 	if (i - 1 >= _lexedFile.begin() && (i - 1)->second == NEGATIVE)
@@ -297,52 +302,60 @@ void			LexerParser::addOperand(t_vector::iterator i, std::vector<Token> &newToke
 
 	if (_facts == false && _queries == false)
 	{
-		if (!expertSystem.findOperand(i->first.c_str()[0]))
-			expertSystem.addOperand(new Operand(i->first.c_str()[0]));
+		if (CAST_EXPERT_SYSTEM(args[3]))
+			std::cout << "ExpertSystem exists." << std::endl;
+		if (i->first.c_str()[0])
+			std::cout << "i->first exists." << std::endl;
+			if (CAST_EXPERT_SYSTEM(args[3])->findOperand('A'))
+			std::cout << "all exists." << std::endl;
+		if (!CAST_EXPERT_SYSTEM(args[3])->findOperand(i->first.c_str()[0]))
+		{
+			CAST_EXPERT_SYSTEM(args[3])->addOperand(new Operand(i->first.c_str()[0]));
+		}
 
-		newTokenList.push_back(Token(i->second, expertSystem.findOperand(i->first.c_str()[0]), NULL, negSign));
+		CAST_TOKEN_VECTOR(args[0])->push_back(Token(i->second, CAST_EXPERT_SYSTEM(args[3])->findOperand(i->first.c_str()[0]), NULL, negSign));
         
 		if ((i + 1) != _lexedFile.end() &&
-			(nextLexem == NEGATIVE || nextLexem == O_BRACKET || nextLexem == OPERAND || nextLexem == FACTS))
+			(CAST_T_LEXEM(args[1]) == NEGATIVE || CAST_T_LEXEM(args[1]) == O_BRACKET || CAST_T_LEXEM(args[1]) == OPERAND || CAST_T_LEXEM(args[1]) == FACTS))
 		{
 			if (_brackets > 0)
-				addExceptionMessage("Unexpected token : line " + std::to_string(nLines) + " : '(' not closed.");
+				addExceptionMessage("Unexpected token : line " + std::to_string(CAST_INT(args[4])) + " : '(' not closed.");
 
-			if (newRule.getAllAntecedents().size() == 0)
+			if (CAST_RULE(args[2])->getAllAntecedents().size() == 0)
 			{
-				if (nextLexem != IMPLIES && nextLexem != DOUBLE_IMPLIES)
+				if (CAST_T_LEXEM(args[1]) != IMPLIES && CAST_T_LEXEM(args[1]) != DOUBLE_IMPLIES)
 					addExceptionMessage(_error);
-				newRule.setAntecedents(newTokenList);
+				CAST_RULE(args[2])->setAntecedents(*CAST_TOKEN_VECTOR(args[0]));
 			}
 			else
 			{
-				if (*lastImplie == DOUBLE_IMPLIES)
-					newRule.setImplying(DOUBLE_IMPLIES);
+				if (CAST_T_LEXEM(args[5]) == DOUBLE_IMPLIES)
+					CAST_RULE(args[2])->setImplying(DOUBLE_IMPLIES);
 				else
-					newRule.setImplying(IMPLIES);
+					CAST_RULE(args[2])->setImplying(IMPLIES);
 
-				newRule.setConsequents(newTokenList);
-				newRule.reorderTokenArrays();
-				expertSystem.addRule(newRule);
+				CAST_RULE(args[2])->setConsequents(*CAST_TOKEN_VECTOR(args[0]));
+				CAST_RULE(args[2])->reorderTokenArrays();
+				CAST_EXPERT_SYSTEM(args[3])->addRule(*CAST_RULE(args[2]));
 
-				newRule.clear(); 
-				*lastImplie = NONE;
+				CAST_RULE(args[2])->clear(); 
+				CAST_T_LEXEM(args[5]) = NONE;
 			}
-			newTokenList.clear();
+			CAST_TOKEN_VECTOR(args[0])->clear();
 		}
 	}
 	else if (_facts == true && _queries == false)
 	{
-		if (!expertSystem.findOperand(i->first.c_str()[0]))
-			addExceptionMessage("Unexpected token : line " + std::to_string(nLines) + " : " + i->first + " does not exist.");
-		expertSystem.findOperand(i->first.c_str()[0])->setValue(TRUE);
-		expertSystem.findOperand(i->first.c_str()[0])->setIsResolved(TRUE);
+		if (!CAST_EXPERT_SYSTEM(args[3])->findOperand(i->first.c_str()[0]))
+			addExceptionMessage("Unexpected token : line " + std::to_string(CAST_INT(args[4])) + " : " + i->first + " does not exist.");
+		CAST_EXPERT_SYSTEM(args[3])->findOperand(i->first.c_str()[0])->setValue(TRUE);
+		CAST_EXPERT_SYSTEM(args[3])->findOperand(i->first.c_str()[0])->setIsResolved(TRUE);
 	}
 	else if (_facts == true && _queries == true)
 	{
-		if (!expertSystem.findOperand(i->first.c_str()[0]))
-			addExceptionMessage("Unexpected token : line " + std::to_string(nLines) + " : " + i->first + " does not exist.");
-		expertSystem.pushQuery(expertSystem.findOperand(i->first.c_str()[0]));
+		if (!CAST_EXPERT_SYSTEM(args[3])->findOperand(i->first.c_str()[0]))
+			addExceptionMessage("Unexpected token : line " + std::to_string(CAST_INT(args[4])) + " : " + i->first + " does not exist.");
+		CAST_EXPERT_SYSTEM(args[3])->pushQuery(CAST_EXPERT_SYSTEM(args[3])->findOperand(i->first.c_str()[0]));
 	}
 	else
 		addExceptionMessage(_error);
@@ -357,7 +370,7 @@ ExpertSystem	LexerParser::Parser()
 	t_lexem 			nextLexem;
 
 	int 				nLines = 1;
-	t_lexem				lastImplie;
+	t_lexem				lastImpliyng;
 	t_vector::iterator	i = _lexedFile.begin();
 
 	while (i != _lexedFile.end())
@@ -371,30 +384,23 @@ ExpertSystem	LexerParser::Parser()
 		_error = "Unexpected token : line " + std::to_string(nLines) + " : " + i->first + " " + printLexemValue(nextLexem);
 		_factsAndQueriesError = "Unexpected token : line " + std::to_string(nLines) + " : facts and queries can only contain letters.";
         
+		std::vector<void *> args = std::vector<void *>{
+            &newTokenList,
+            &nextLexem,
+            &newRule,
+            &expertSystem,
+            &nLines,
+            &lastImpliyng
+        };
+
 		if (i->second == ENDL)
 			nLines++;
-		else if (i->second == O_BRACKET)
-			addOBracket(i, newTokenList, nextLexem);
-		else if (i->second == NEGATIVE)
-			addNegative(nextLexem);
-		else if (i->second == C_BRACKET)
-			addCBracket(i, newTokenList, nextLexem, newRule, expertSystem);
-		else if (i->second == DOUBLE_IMPLIES || i->second == IMPLIES)
-		{
-			addImplies(newTokenList, nextLexem, newRule, nLines);
-			lastImplie = i->second;
-		}
-		else if (i->second == AND || i->second == OR || i->second == XOR)
-			addOperator(i, newTokenList, nextLexem);
-		else if (i->second == FACTS)
-			addFacts(nextLexem);
-		else if (i->second == QUERY)
-			addQueries(nextLexem);
-		else if (i->second == OPERAND)
-			addOperand(i, newTokenList, nextLexem, newRule, expertSystem, nLines, &lastImplie);
+		else
+			(this->*_lexem[i->second].f)(i, args);
 		i++;
+		args.clear();
 	}
-
+	
 	if (expertSystem.getAllRules().empty() || !_facts || !_queries)
 		addExceptionMessage("Missing elements.");
 	else
