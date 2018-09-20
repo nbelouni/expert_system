@@ -116,36 +116,49 @@ Operand				*ExpertSystem::popQuery()
 	return nextQuery;
 }
 
-t_status			ExpertSystem::resolveRule(const Rule &rule, std::vector<Operand *> &path)
+t_status			ExpertSystem::resolveRule(const Rule &rule, std::vector<Operand *> &path, char operand_name)
 {
     std::vector<Token>              token_stack;
     const std::vector<Token>        antecedents = rule.getAllAntecedents();
 
     std::cout << typeid(antecedents[0]).name() << std::endl;
-    std::cout << "A size : " << antecedents.size() << std::endl;
 	for (size_t i = 0; i < antecedents.size(); i++)
     {
-        std::cout << "________________________" << std::endl;
         if (antecedents[i].getType() == OPERAND)
         {
-            if (antecedents[i].getOperand()->getIsResolved() || antecedents[i].getOperand()->getInitialFact() )
-                token_stack.push_back(antecedents[i]);
-            else
+            if (!antecedents[i].getOperand()->getIsResolved() && !antecedents[i].getOperand()->getInitialFact() )
                 resolveQuery(*(antecedents[i].getOperand()), path);
+            token_stack.push_back(antecedents[i]);
+            std::cout << "coucou" << std::endl;
         }
         else if (antecedents[i].getType() == AND || antecedents[i].getType() == OR || antecedents[i].getType() == XOR)
         {
-            Operand                 tmp_operand('T');
- 
-            Token tmp_token = Token(OPERAND, &tmp_operand, nullptr, false);
+            Token tmp_token = Token(OPERAND, new Operand('T'), nullptr, false);
 
-            std::cout << "par ici" << std::endl;
-//                tmp_operand.setValue(
-                antecedents[i].getFunction();//(token_stack.pop_back(), token_stack.pop_back());
-                token_stack.push_back(tmp_token);
+            Token tmp1 = token_stack.back();
+            token_stack.pop_back();
+            Token tmp2 = token_stack.back();
+            token_stack.pop_back();
+            tmp_token.getOperand()->setValue(antecedents[i].getFunction()(tmp1, tmp2));
+            std::cout << tmp_token.getOperand()->getValue() << ", ";
+            token_stack.push_back(tmp_token);
+            std::cout << tmp_token.getOperand()->getValue() << ", " << std::endl;
         }
     }
-	return TRUE;//token_stack.front().getOperand()->getValue();
+
+    std::cout << "size token_stack : " << token_stack.size() << std::endl;
+    const std::vector<Token>        consequents = rule.getAllConsequents();
+    for (size_t i = 0; i < consequents.size(); i++)
+    {
+        if (consequents[i].getType() == OPERAND)
+        {
+            consequents[i].getOperand()->setValue(token_stack[0].getOperand()->getValue());
+        std::cout << "consequent value : " << consequents[i].getOperand()->getValue() << std::endl;
+            consequents[i].getOperand()->setIsResolved(true);
+        }
+    }
+
+	return findOperand(operand_name)->getValue();
 }
 
 t_status            ExpertSystem::resolveQuery(Operand &query, std::vector<Operand *> &path)
@@ -163,21 +176,39 @@ t_status            ExpertSystem::resolveQuery(Operand &query, std::vector<Opera
     Operand *realOperand = findOperand(query.getName());
 
     if (!realOperand)
+    {
+        std::cout << "no operand found" << std::endl;
         return FALSE;
-	t_status result = realOperand ? realOperand->getValue() : NOT_RESOLVED;
+    }
+    const std::vector<Rule> consequents = realOperand->getAllConsequents();
+    if (consequents.size() == 0)
+    {
+        realOperand->setIsResolved(true);
+        if (realOperand->getValue() == NOT_RESOLVED)
+            realOperand->setValue(FALSE);
+    }
+
+	t_status result = realOperand->getIsResolved() ? realOperand->getValue() : NOT_RESOLVED;
 	t_status tmp_result = NOT_RESOLVED;
 
-    const std::vector<Rule> consequents = realOperand->getAllConsequents();
 	for (size_t i = 0; i < consequents.size(); i++)
 	{
-		tmp_result = resolveRule(consequents[i], path);
+		tmp_result = resolveRule(consequents[i], path, realOperand->getName());
+		std::cout << (result == NOT_RESOLVED ?	"NOT_RESOLVED" :
+					 result == UNDEFINED ?		"UNDEFINED" :
+					 result == TRUE ?			"TRUE" :
+												"FALSE") << std::endl;
 		if (result == NOT_RESOLVED)
 			result = tmp_result;
 		else if (result != tmp_result)
 			return NOT_RESOLVED;
 	}
 
-	return result;
+    
+    std::cout << "result found" << std::endl;
+    if (realOperand)
+        std::cout << realOperand->getValue() << std::endl;
+	return realOperand->getValue();
 }
 
 void                ExpertSystem::resolveAllQueries()
@@ -187,12 +218,16 @@ void                ExpertSystem::resolveAllQueries()
 
 	while (!_queries.empty())
 	{
+        char c = _queries.front()->getName();
+        std::cout << "______________1" << std::endl;
 		result = resolveQuery(*popQuery(), path);
+        std::cout << "Query name : " << c << ", result : ";
 		std::cout << (result == NOT_RESOLVED ?	"NOT_RESOLVED" :
 					 result == UNDEFINED ?		"UNDEFINED" :
 					 result == TRUE ?			"TRUE" :
 												"FALSE")
-		<< std::endl;
+		<< ", is resolved : " << findOperand(c)->getIsResolved() << std::endl;
+        path.clear();
 	}
 }
 

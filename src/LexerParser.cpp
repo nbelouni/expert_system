@@ -127,7 +127,7 @@ void		LexerParser::Lexer(char const *fileName)
 	std::ifstream	file(fileName);
 	std::string		line;
 
-	if (file.is_open())
+	if (file && file.is_open())
 	{
 		size_t line_index = 0;
 		while (std::getline(file, line))

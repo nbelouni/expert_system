@@ -13,8 +13,8 @@ int main(int argc, char **argv)
 			LexerParser tmp;
 			tmp.Lexer(argv[1]);
 			ExpertSystem expertSystem = tmp.Parser();
-			expertSystem.printOperands();
-			expertSystem.printRules();
+//			expertSystem.printOperands();
+//			expertSystem.printRules();
             expertSystem.resolveAllQueries();
 		}
 	}
