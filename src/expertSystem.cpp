@@ -118,9 +118,34 @@ Operand				*ExpertSystem::popQuery()
 
 t_status			ExpertSystem::resolveRule(const Rule &rule, std::vector<Operand *> &path)
 {
-	(void)rule;
-	(void)path;
-	return FALSE;
+    std::vector<Token>              token_stack;
+    const std::vector<Token>        antecedents = rule.getAllAntecedents();
+
+    std::cout << typeid(antecedents[0]).name() << std::endl;
+    std::cout << "A size : " << antecedents.size() << std::endl;
+	for (size_t i = 0; i < antecedents.size(); i++)
+    {
+        std::cout << "________________________" << std::endl;
+        if (antecedents[i].getType() == OPERAND)
+        {
+            if (antecedents[i].getOperand()->getIsResolved() || antecedents[i].getOperand()->getInitialFact() )
+                token_stack.push_back(antecedents[i]);
+            else
+                resolveQuery(*(antecedents[i].getOperand()), path);
+        }
+        else if (antecedents[i].getType() == AND || antecedents[i].getType() == OR || antecedents[i].getType() == XOR)
+        {
+            Operand                 tmp_operand('T');
+ 
+            Token tmp_token = Token(OPERAND, &tmp_operand, nullptr, false);
+
+            std::cout << "par ici" << std::endl;
+//                tmp_operand.setValue(
+                antecedents[i].getFunction();//(token_stack.pop_back(), token_stack.pop_back());
+                token_stack.push_back(tmp_token);
+        }
+    }
+	return TRUE;//token_stack.front().getOperand()->getValue();
 }
 
 t_status            ExpertSystem::resolveQuery(Operand &query, std::vector<Operand *> &path)
@@ -128,16 +153,24 @@ t_status            ExpertSystem::resolveQuery(Operand &query, std::vector<Opera
 	for (std::vector<Operand *>::iterator i = path.begin(); i != path.end(); i++)
 	{
 		if ((*i)->getName() == query.getName())
+        {
+            (*i)->setIsResolved(true);
 			return (*i)->getValue();
+        }
 	}
 	path.push_back(&query);
 
-	t_status result = NOT_RESOLVED;
+    Operand *realOperand = findOperand(query.getName());
+
+    if (!realOperand)
+        return FALSE;
+	t_status result = realOperand ? realOperand->getValue() : NOT_RESOLVED;
 	t_status tmp_result = NOT_RESOLVED;
 
-	for (std::vector<Rule>::const_iterator i = query.getAllAntecedents().begin(); i < query.getAllAntecedents().end(); i++)
+    const std::vector<Rule> consequents = realOperand->getAllConsequents();
+	for (size_t i = 0; i < consequents.size(); i++)
 	{
-		tmp_result = resolveRule(*i, path);
+		tmp_result = resolveRule(consequents[i], path);
 		if (result == NOT_RESOLVED)
 			result = tmp_result;
 		else if (result != tmp_result)
@@ -151,6 +184,7 @@ void                ExpertSystem::resolveAllQueries()
 {
 	t_status				result = NOT_RESOLVED;
 	std::vector<Operand *>	path;
+
 	while (!_queries.empty())
 	{
 		result = resolveQuery(*popQuery(), path);
@@ -160,7 +194,6 @@ void                ExpertSystem::resolveAllQueries()
 												"FALSE")
 		<< std::endl;
 	}
-	
 }
 
 void				ExpertSystem::printOperands()

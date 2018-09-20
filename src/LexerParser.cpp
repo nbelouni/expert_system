@@ -275,7 +275,20 @@ void			LexerParser::addOperator(t_vector::iterator i, std::vector<void *> args)/
 	else if (CAST_T_LEXEM(args[1]) != O_BRACKET && CAST_T_LEXEM(args[1]) != OPERAND && CAST_T_LEXEM(args[1]) != NEGATIVE)
 		addExceptionMessage(_error);
 
-	CAST_TOKEN_VECTOR(args[0])->push_back(Token(i->second, NULL, NULL, false));
+    switch (i->second) {
+        case AND :
+            CAST_TOKEN_VECTOR(args[0])->push_back(Token(i->second, NULL, &andOperator, false));
+        break;
+        case OR :
+            CAST_TOKEN_VECTOR(args[0])->push_back(Token(i->second, NULL, &orOperator, false));
+        break;
+        case XOR :
+            CAST_TOKEN_VECTOR(args[0])->push_back(Token(i->second, NULL, &xorOperator, false));
+        break;
+        default :
+            std::cout << "ERROR" << std::endl;
+        break;
+    }
 }
 
 void			LexerParser::addFacts(t_vector::iterator i, std::vector<void *> args)//[[0] = 0, [1]t_lexem nextLexem]
@@ -302,12 +315,6 @@ void			LexerParser::addOperand(t_vector::iterator i, std::vector<void *> args)//
 
 	if (_facts == false && _queries == false)
 	{
-		if (CAST_EXPERT_SYSTEM(args[3]))
-			std::cout << "ExpertSystem exists." << std::endl;
-		if (i->first.c_str()[0])
-			std::cout << "i->first exists." << std::endl;
-			if (CAST_EXPERT_SYSTEM(args[3])->findOperand('A'))
-			std::cout << "all exists." << std::endl;
 		if (!CAST_EXPERT_SYSTEM(args[3])->findOperand(i->first.c_str()[0]))
 		{
 			CAST_EXPERT_SYSTEM(args[3])->addOperand(new Operand(i->first.c_str()[0]));
