@@ -86,14 +86,14 @@ void				Rule::setConsequents(std::vector<Token> rhs)
 		this->addConsequent(rhs[i]);
 }
 
-void				Rule::reorderTokenArrays()
+void                Rule::reorderArray(std::vector<Token> &array)
 {
 	std::vector<Token>	finalOrder;
 	std::vector<Token>	operators;
 
 	std::vector<Token>::iterator i;
 
-	for (i = _antecedents.begin(); i != _antecedents.end(); i++)
+	for (i = array.begin(); i != array.end(); i++)
 	{
 		if (i->getType() == OPERAND)
 			finalOrder.push_back(*i);
@@ -129,7 +129,13 @@ void				Rule::reorderTokenArrays()
 		finalOrder.push_back(operators.back());
 		operators.pop_back();
 	}
-	_antecedents = finalOrder;
+	array = finalOrder;
+}
+
+void				Rule::reorderTokenArrays()
+{
+    reorderArray(_antecedents);
+    reorderArray(_consequents);
 }
 
 bool				Rule::Resolve()

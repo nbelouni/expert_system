@@ -51,10 +51,12 @@ typedef enum	e_status
 #define CAST_EXPERT_SYSTEM(x)	(static_cast<ExpertSystem *>(x))
 #define CAST_INT(x)				(*static_cast<int *>(x))
 
-t_status		andOperator(Token const &first, Token const &second);
-t_status		orOperator(Token const &first, Token const &second);
-t_status		xorOperator(Token const &first, Token const &second);
+t_status    		andOperator(Token const &first, Token const &second);
+t_status    		orOperator(Token const &first, Token const &second);
+t_status	    	xorOperator(Token const &first, Token const &second);
 
+t_status            assignAnd(Token const &first, Token const &second, t_status value);
+t_status            assignOr(Token const &first, Token const &second, t_status value);
 
 void				printTokenList(std::vector<Token> newTokenList);
 std::string			printLexem(t_lexem lex);

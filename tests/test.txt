@@ -8,7 +8,7 @@ A + B => Y + Z    # A and B implies Y and Z
 C | D => X | V    # C or D implies X or V
 E + F => !V
 A + B <=> C
-A + B <=> !C
+A + B <=> !C | C + D
 
 =ABG
 

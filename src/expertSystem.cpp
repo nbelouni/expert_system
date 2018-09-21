@@ -129,33 +129,54 @@ t_status			ExpertSystem::resolveRule(const Rule &rule, std::vector<Operand *> &p
             if (!antecedents[i].getOperand()->getIsResolved() && !antecedents[i].getOperand()->getInitialFact() )
                 resolveQuery(*(antecedents[i].getOperand()), path);
             token_stack.push_back(antecedents[i]);
-            std::cout << "coucou" << std::endl;
         }
         else if (antecedents[i].getType() == AND || antecedents[i].getType() == OR || antecedents[i].getType() == XOR)
         {
             Token tmp_token = Token(OPERAND, new Operand('T'), nullptr, false);
 
-            Token tmp1 = token_stack.back();
-            token_stack.pop_back();
-            Token tmp2 = token_stack.back();
-            token_stack.pop_back();
-            tmp_token.getOperand()->setValue(antecedents[i].getFunction()(tmp1, tmp2));
+            Token tmp = token_stack.back();
+//            token_stack.pop_back();
+            std::vector<Token>::iterator tmp1 = token_stack.erase(token_stack.end() - 3,token_stack.end() - 1);
+  //          token_stack.pop_back();
+            tmp_token.getOperand()->setValue(antecedents[i].getFunction()(tmp1[0], tmp1[1]));
             std::cout << tmp_token.getOperand()->getValue() << ", ";
             token_stack.push_back(tmp_token);
             std::cout << tmp_token.getOperand()->getValue() << ", " << std::endl;
         }
     }
 
-    std::cout << "size token_stack : " << token_stack.size() << std::endl;
-    const std::vector<Token>        consequents = rule.getAllConsequents();
+    const std::vector<Token>	consequents = rule.getAllConsequents();
+	t_status					result;
+
+	result = token_stack.front().getOperand()->getValue();
+	token_stack.clear();
+
     for (size_t i = 0; i < consequents.size(); i++)
     {
-        if (consequents[i].getType() == OPERAND)
-        {
-            consequents[i].getOperand()->setValue(token_stack[0].getOperand()->getValue());
-        std::cout << "consequent value : " << consequents[i].getOperand()->getValue() << std::endl;
-            consequents[i].getOperand()->setIsResolved(true);
-        }
+        Token tmp_token = Token(OPERAND, new Operand('T'), nullptr, false);
+	    Token tmp = token_stack.back();
+		if (consequents[i].getType() == OPERAND)
+            	token_stack.push_back(consequents[i]);
+		else if (consequents[i].getType() == AND)
+		{
+//            token_stack.pop_back();
+	            std::vector<Token>::iterator tmp1 = token_stack.erase(token_stack.end() - 3,token_stack.end() - 1);
+  //          token_stack.pop_back();
+	            tmp_token.getOperand()->setValue(assignAnd(tmp1[0], tmp1[1], result));
+            	std::cout << tmp_token.getOperand()->getValue() << ", ";
+            	token_stack.push_back(tmp_token);
+            	std::cout << tmp_token.getOperand()->getValue() << ", " << std::endl;
+		}
+		else if (consequents[i].getType() == OR)
+		{
+//            token_stack.pop_back();
+	            std::vector<Token>::iterator tmp1 = token_stack.erase(token_stack.end() - 3,token_stack.end() - 1);
+  //          token_stack.pop_back();
+	            tmp_token.getOperand()->setValue(assignAnd(tmp1[0], tmp1[1], result));
+            	std::cout << tmp_token.getOperand()->getValue() << ", ";
+            	token_stack.push_back(tmp_token);
+            	std::cout << tmp_token.getOperand()->getValue() << ", " << std::endl;
+		}
     }
 
 	return findOperand(operand_name)->getValue();

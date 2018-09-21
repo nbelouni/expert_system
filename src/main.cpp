@@ -14,7 +14,7 @@ int main(int argc, char **argv)
 			tmp.Lexer(argv[1]);
 			ExpertSystem expertSystem = tmp.Parser();
 //			expertSystem.printOperands();
-//			expertSystem.printRules();
+			expertSystem.printRules();
             expertSystem.resolveAllQueries();
 		}
 	}
