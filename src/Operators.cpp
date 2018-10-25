@@ -1,5 +1,23 @@
 #include "expertSystem.hpp"
 
+void            printStatus(t_status result)
+{
+	std::cout << (result == NOT_RESOLVED ?	"NOT_RESOLVED" :
+				 result == UNDEFINED ?		"UNDEFINED" :
+				 result == TRUE ?			"TRUE" :
+				 result == FALSE ?			"FALSE" :
+											"ERROR") << std::endl;
+}
+
+const char *            statusToString(t_status result)
+{
+	return (result == NOT_RESOLVED ?	"NOT_RESOLVED" :
+				 result == UNDEFINED ?		"UNDEFINED" :
+				 result == TRUE ?			"TRUE" :
+				 result == FALSE ?			"FALSE" :
+											"ERROR");
+}
+
 t_status		andOperator(Token const &first, Token const &second)
 {
 	bool first_value = first.getIsNegativeOperand() ? false : true;
@@ -98,4 +116,22 @@ t_status        assignOr(Token const &first, Token const &second, t_status value
 
 
     return orOperator(first, second);
+}
+
+void            assignValue(Token const &token, t_status value)
+{
+    t_status reverse_value = (value == NOT_RESOLVED) ? TRUE :
+                             (value == FALSE) ? TRUE:
+                             (value == TRUE) ? FALSE:
+                             (value == UNDEFINED) ? UNDEFINED :
+                             FALSE;
+
+    t_status tmp = token.getIsNegativeOperand() ? reverse_value : value;
+
+    if (token.getOperand()->getIsResolved() && token.getOperand()->getValue() != tmp)
+        token.getOperand()->setValue(ERROR);
+
+    else
+        token.getOperand()->setValue(tmp);
+    token.getOperand()->setIsResolved(true);
 }

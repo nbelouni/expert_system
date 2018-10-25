@@ -3,6 +3,7 @@
 # define EXPERT_SYSTEM_HPP
 
 #include <iostream>
+#include <sstream>
 #include <fstream>
 #include <utility>
 #include <queue>
@@ -37,7 +38,8 @@ typedef enum	e_status
 	FALSE,
 	TRUE,
 	UNDEFINED,
-	NOT_RESOLVED
+	NOT_RESOLVED,
+    ERROR
 }				t_status;
 
 #include "Operand.hpp"
@@ -51,25 +53,28 @@ typedef enum	e_status
 #define CAST_EXPERT_SYSTEM(x)	(static_cast<ExpertSystem *>(x))
 #define CAST_INT(x)				(*static_cast<int *>(x))
 
-t_status    		andOperator(Token const &first, Token const &second);
-t_status    		orOperator(Token const &first, Token const &second);
-t_status	    	xorOperator(Token const &first, Token const &second);
+t_status    		andOperator(Token const &, Token const &);
+t_status    		orOperator(Token const &, Token const &);
+t_status	    	xorOperator(Token const &, Token const &);
 
-t_status            assignAnd(Token const &first, Token const &second, t_status value);
-t_status            assignOr(Token const &first, Token const &second, t_status value);
+t_status            assignAnd(Token const &, Token const &, t_status);
+t_status            assignOr(Token const &, Token const &, t_status);
+void                assignValue(Token const &, t_status);
 
 void				printTokenList(std::vector<Token> newTokenList);
 std::string			printLexem(t_lexem lex);
 std::string			printLexemValue(t_lexem lex);
+void                printStatus(t_status result);
+const char *        statusToString(t_status result);
 
 class Rule;
 
 class ExpertSystem
 {
 	private:
-		std::vector<Operand *>	_operands;
-		std::vector<Rule>		_rules;
-		std::queue<Operand *>	_queries;
+		std::vector<Operand *>	    _operands;
+		std::vector<Rule>		    _rules;
+		std::queue<Operand *>	    _queries;
 
 	public:
 		ExpertSystem();
@@ -93,27 +98,23 @@ class ExpertSystem
         t_status			            resolveRule(const Rule &rule, std::vector<Operand *> &path, char);
         t_status                        resolveQuery(Operand &, std::vector<Operand *> &);
         void                            resolveAllQueries();
-/*
-**	resolve_query()
-**	{
-		for all rules in query.operand :
-			result = resolve rule
-			if result != old_result
-				error
-		query = result
-	}
-**
-**	reslove all _queries 
-**	{
-**		foreach _query()
-**		{
-**			resolve_query()
-**		}
-**	}
-**
-*/
 		void							printOperands();
 		void							printRules();
+		void							printRule(Rule );
+		class	CannotBeResolvedException : public std::exception
+		{
+			private:
+				std::string         _message;
+
+			public:
+				CannotBeResolvedException(std::string error);
+				CannotBeResolvedException(CannotBeResolvedException const &);
+				virtual ~CannotBeResolvedException() throw();
+				virtual const char *what() const throw();
+		
+			private:
+			CannotBeResolvedException &operator=(CannotBeResolvedException const &);
+		};
 };
 
 #endif
