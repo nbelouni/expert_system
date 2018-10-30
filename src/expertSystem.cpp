@@ -247,10 +247,10 @@ void                ExpertSystem::resolveAllQueries()
         std::cout << result << " == " << ERROR << std::endl;
         if (result == ERROR)
         {
-//            path.clear();
-//            results.clear();
-            ss << "the fact \"" << c << "\" cannot be resolved";
-       //     throw CannotBeResolvedException(ss.str());
+            path.clear();
+            results.clear();
+            ss << "Error : the fact \"" << c << "\" cannot be resolved";
+            throw CannotBeResolvedException(ss.str());
         }
         else
             ss << "Query name : " << c << ", result : " << statusToString(findOperand(c)->getValue());
