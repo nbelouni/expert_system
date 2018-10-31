@@ -116,147 +116,168 @@ Operand				*ExpertSystem::popQuery()
 	return nextQuery;
 }
 
+//	Resolve rule
+
+Token				ExpertSystem::getFactStatus(const std::vector<Token> facts, std::vector<Operand *> &path)
+{
+	std::vector<Token>				token_stack;
+
+	for (size_t i = 0; i < facts.size(); i++)
+	{
+		Token tmp_token = Token(OPERAND, new Operand('#'), nullptr, false);
+		if (facts[i].getType() == OPERAND)
+		{
+			if (!facts[i].getOperand()->getIsResolved() && !facts[i].getOperand()->getInitialFact() )
+				resolveQuery(*(facts[i].getOperand()), path);
+			token_stack.push_back(facts[i]);
+		}
+		else if (facts[i].getType() == AND || facts[i].getType() == OR || facts[i].getType() == XOR)
+		{
+
+			Token tmp = token_stack.back();
+			token_stack.pop_back();
+			tmp_token.getOperand()->setValue(facts[i].getFunction()(tmp, token_stack.back()));
+			token_stack.pop_back();
+			token_stack.push_back(tmp_token);
+		}
+	}
+	return token_stack.front();
+}
+
+void				ExpertSystem::assignValues(const std::vector<Token> facts, Token result)
+{
+	std::vector<Token>			token_stack;
+
+	for (size_t i = 0; i < facts.size(); i++)
+	{
+		Token tmp_token = Token(OPERAND, new Operand('#'), nullptr, false);
+		if (facts[i].getType() == OPERAND)
+		   	token_stack.push_back(facts[i]);
+		else if (facts[i].getType() == AND)
+		{
+			std::vector<Token>::iterator tmp1 = token_stack.erase(token_stack.end() - 3,token_stack.end() - 1);
+			tmp_token.getOperand()->setValue(assignAnd(tmp1[0], tmp1[1], result.getOperand()->getValue()));
+			tmp_token.getOperand()->setIsResolved(true);
+			token_stack.push_back(tmp_token);
+		}
+		else if (facts[i].getType() == OR)
+		{
+			std::vector<Token>::iterator tmp1 = token_stack.erase(token_stack.end() - 3,token_stack.end() - 1);
+			tmp_token.getOperand()->setValue(assignAnd(tmp1[0], tmp1[1], result.getOperand()->getValue()));
+			tmp_token.getOperand()->setIsResolved(true);
+			token_stack.push_back(tmp_token);
+		}
+	}
+
+	if (token_stack.size() != 1)
+		std::cout << "ERROR" << std::endl;
+	assignValue(token_stack.front(), result.getOperand()->getValue());
+}
+
 t_status			ExpertSystem::resolveRule(const Rule &rule, std::vector<Operand *> &path, Operand &operand)
 {
-	printRule(rule);
-    std::vector<Token>              token_stack;
-    const std::vector<Token>        antecedents = rule.getAllAntecedents();
+	const std::vector<Token>	consequents = rule.getAllConsequents();
+	Token						result = getFactStatus(rule.getAllAntecedents(), path);
 
-	for (size_t i = 0; i < antecedents.size(); i++)
-    {
-        Token tmp_token = Token(OPERAND, new Operand('#'), nullptr, false);
-        if (antecedents[i].getType() == OPERAND)
-        {
-            if (!antecedents[i].getOperand()->getIsResolved() && !antecedents[i].getOperand()->getInitialFact() )
-                resolveQuery(*(antecedents[i].getOperand()), path);
-            token_stack.push_back(antecedents[i]);
-        }
-        else if (antecedents[i].getType() == AND || antecedents[i].getType() == OR || antecedents[i].getType() == XOR)
-        {
-
-            Token tmp = token_stack.back();
-            token_stack.pop_back();
-            tmp_token.getOperand()->setValue(antecedents[i].getFunction()(tmp, token_stack.back()));
-            token_stack.pop_back();
-            token_stack.push_back(tmp_token);
-        }
-    }
-
-    const std::vector<Token>	consequents = rule.getAllConsequents();
-	t_status					result;
-
-	result = token_stack.front().getOperand()->getValue();
-
-	if (result != TRUE || (result == TRUE && token_stack.front().getIsNegativeOperand() == true))
+	if (result.getOperand()->getValue() != TRUE || (result.getOperand()->getValue() == TRUE && result.getIsNegativeOperand() == true))
 		return operand.getValue();
 
-	token_stack.clear();
-    for (size_t i = 0; i < consequents.size(); i++)
-    {
-        Token tmp_token = Token(OPERAND, new Operand('T'), nullptr, false);
-	    Token tmp = token_stack.back();
-		if (consequents[i].getType() == OPERAND)
-           	token_stack.push_back(consequents[i]);
-		else if (consequents[i].getType() == AND)
-		{
-//            token_stack.pop_back();
-	            std::vector<Token>::iterator tmp1 = token_stack.erase(token_stack.end() - 3,token_stack.end() - 1);
-  //          token_stack.pop_back();
-	            tmp_token.getOperand()->setValue(assignAnd(tmp1[0], tmp1[1], result));
-                tmp_token.getOperand()->setIsResolved(true);
-            	token_stack.push_back(tmp_token);
-		}
-		else if (consequents[i].getType() == OR)
-		{
-//            token_stack.pop_back();
-	            std::vector<Token>::iterator tmp1 = token_stack.erase(token_stack.end() - 3,token_stack.end() - 1);
-  //          token_stack.pop_back();
-	            tmp_token.getOperand()->setValue(assignAnd(tmp1[0], tmp1[1], result));
-                tmp_token.getOperand()->setIsResolved(true);
-            	token_stack.push_back(tmp_token);
-		}
-    }
-    if (token_stack.size() != 1)
-        std::cout << "ERROR" << std::endl;
-    assignValue(token_stack.front(), result);
-
+	assignValues(rule.getAllConsequents(), result);
 	return operand.getValue();
 }
 
-t_status            ExpertSystem::resolveQuery(Operand &query, std::vector<Operand *> &path)
+//	Resolve all rules related to querying operand
+
+t_status			ExpertSystem::resolveQuery(Operand &query, std::vector<Operand *> &path)
 {
+	Operand					*realOperand;
+	
+//	If querying operand is already set, return
 	for (std::vector<Operand *>::iterator i = path.begin(); i != path.end(); i++)
 	{
 		if ((*i)->getName() == query.getName())
-        {
-            (*i)->setIsResolved(true);
+		{
+			(*i)->setIsResolved(true);
 			return (*i)->getValue();
-        }
+		}
 	}
+
+//	If querying operand does not exist, return
+	if (!(realOperand = findOperand(query.getName())))
+	{
+		return FALSE;
+	}
+
 	path.push_back(&query);
+	const std::vector<Rule> consequents = realOperand->getAllConsequents();
 
-    Operand *realOperand = findOperand(query.getName());
+//	If querying operand has not implying relation, return FALSE
+	if (consequents.size() == 0)
+	{
+		realOperand->setIsResolved(true);
+		if (realOperand->getValue() == NOT_RESOLVED)
+		{
+			realOperand->setValue(FALSE);
+		}
 
-    if (!realOperand)
-    {
-        return FALSE;
-    }
-    const std::vector<Rule> consequents = realOperand->getAllConsequents();
-    if (consequents.size() == 0)
-    {
-        realOperand->setIsResolved(true);
-        if (realOperand->getValue() == NOT_RESOLVED)
-            realOperand->setValue(FALSE);
-    }
+		return FALSE;
+	}
 
 	t_status result = realOperand->getIsResolved() ? realOperand->getValue() : NOT_RESOLVED;
 	t_status tmp_result = NOT_RESOLVED;
 
+//	Resolve all rules related to querying operand
 	for (size_t i = 0; i < consequents.size(); i++)
 	{
 		tmp_result = resolveRule(consequents[i], path, *realOperand);
 		if (result == NOT_RESOLVED)
+		{
 			result = tmp_result;
+		}
 		else if (result != tmp_result)
+		{
 			return ERROR;
+		}
 	}
 
 	return realOperand->getValue();
 }
 
-void                ExpertSystem::resolveAllQueries()
+void				ExpertSystem::resolveAllQueries()
 {
-	t_status				    result = NOT_RESOLVED;
-	std::vector<Operand *>	    path;
-    std::stringstream           ss;
-    std::vector<std::string>    results;
+	t_status					result = NOT_RESOLVED;
+	std::vector<Operand *>		path;
+	std::stringstream		   ss;
+	std::vector<std::string>	results;
 
 	while (!_queries.empty())
 	{
-        char c = _queries.front()->getName();
+		char c = _queries.front()->getName();
 		result = resolveQuery(*popQuery(), path);
-        printStatus(result);
-        if (result == ERROR)
-        {
-        	ss.str("");
-            path.clear();
-            results.clear();
-			std::cout << "coucou" << std::endl;
-			ss << "Error : the fact \"" << c << "\" cannot be resolved";
-            throw CannotBeResolvedException(ss.str());
-        }
-        else
+		printStatus(result);
+		if (result == ERROR)
 		{
-            ss << "Query name : " << c << ", result : " << statusToString(findOperand(c)->getValue());
+			ss.str("");
+			path.clear();
+			results.clear();
+			ss << "Error : the fact \"" << c << "\" cannot be resolved";
+			throw CannotBeResolvedException(ss.str());
 		}
-        results.push_back(ss.str());
-        ss.str("");
-        path.clear();
+		else
+		{
+			ss << "Query name : " << c << ", result : " << statusToString(findOperand(c)->getValue());
+		}
+		results.push_back(ss.str());
+		ss.str("");
+		path.clear();
 	}
 
-    for (size_t i = 0; i < results.size(); i++)
-        std::cout << results[i] << std::endl;
-    results.clear();
+	for (size_t i = 0; i < results.size(); i++)
+	{
+		std::cout << results[i] << std::endl;
+	}
+
+	results.clear();
 }
 
 void				ExpertSystem::printOperands()

@@ -95,6 +95,8 @@ class ExpertSystem
 		void							pushQuery(Operand *);
 		Operand							*popQuery();
 
+        void				            assignValues(const std::vector<Token> facts, Token result);
+        Token                           getFactStatus(const std::vector<Token> facts, std::vector<Operand *> &path);
         t_status			            resolveRule(const Rule &rule, std::vector<Operand *> &path, Operand &);
         t_status                        resolveQuery(Operand &, std::vector<Operand *> &);
         void                            resolveAllQueries();
