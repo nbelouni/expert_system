@@ -127,10 +127,8 @@ void            assignValue(Token const &token, t_status value)
                              FALSE;
 
     t_status tmp = token.getIsNegativeOperand() ? reverse_value : value;
-
     if (token.getOperand()->getIsResolved() && token.getOperand()->getValue() != tmp)
         token.getOperand()->setValue(ERROR);
-
     else
         token.getOperand()->setValue(tmp);
     token.getOperand()->setIsResolved(true);
