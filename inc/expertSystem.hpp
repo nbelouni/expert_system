@@ -76,6 +76,8 @@ class ExpertSystem
 		std::vector<Rule>		    _rules;
 		std::queue<Operand *>	    _queries;
 
+        void                        addTokens(Rule const & rule, std::vector<Token> tokenArray);
+
 	public:
 		ExpertSystem();
 		ExpertSystem(ExpertSystem const &);

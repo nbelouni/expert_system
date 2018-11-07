@@ -105,38 +105,23 @@ std::string			printLexemValue(t_lexem lex)
 	);
 }
 
-void		LexerParser::printLexedFile()
-{
-	t_vector::iterator i = _lexedFile.begin();
-
-	while (i != _lexedFile.end())
-	{
-		if (i->second == ENDL)
-			std::cout << std::endl;
-		else
-		{
-			std::cout <<  printLexem(i->second);
-			std::cout << "(" << i->first << ") ";
-		}
-		i++;
-	}
-}
-
 void		LexerParser::Lexer(char const *fileName)
 {
 	std::ifstream	file(fileName);
-	std::string		line;
 
 	if (file && file.is_open())
 	{
-		size_t line_index = 0;
+		size_t          line_index = 0;
+	    std::string		line;
+        std::string     lexed_line;
+
 		while (std::getline(file, line))
 		{
-			line = std::regex_replace(line, std::regex("([ ]+)"), "");
+			lexed_line = std::regex_replace(line, std::regex("([ ]+)"), "");
 
-			std::string::iterator i = line.begin();
+			std::string::iterator i = lexed_line.begin();
 
-			while (i != line.end())
+			while (i != lexed_line.end())
 			{
 				int j = 0;
 
@@ -168,6 +153,8 @@ void		LexerParser::Lexer(char const *fileName)
 					i++;
 				}
 			}
+            lexed_line.clear();
+            line.clear();
 			std::pair<std::string, e_lexem>	tmp("", ENDL);
 			_lexedFile.push_back(tmp);
 			line_index++;
