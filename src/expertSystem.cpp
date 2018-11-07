@@ -1,5 +1,8 @@
 #include "expertSystem.hpp"
 
+/*
+**      Construct / destroy
+*/
 ExpertSystem::ExpertSystem()
 {
 }
@@ -27,6 +30,9 @@ ExpertSystem				&ExpertSystem::operator=(ExpertSystem const &rhs)
 	return *this;
 }
 
+/*
+**      GET / SET / FIND
+*/
 const std::vector<Operand *> &ExpertSystem::getAllOperands() const 
 {
 	return (_operands);
@@ -243,7 +249,10 @@ t_status			ExpertSystem::resolveQuery(Operand &query, std::vector<Operand *> &pa
 	return realOperand->getValue();
 }
 
-void				ExpertSystem::resolveAllQueries()
+/*
+**  Call resolveQuery() on each query.
+*/
+void                ExpertSystem::resolveAllQueries()
 {
 	t_status					result = NOT_RESOLVED;
 	std::vector<Operand *>		path;
