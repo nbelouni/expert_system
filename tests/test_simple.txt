@@ -1,7 +1,11 @@
 !G + !V => X
-!A => B
-!A => !B
+A <=> B
+!A <=> B
+A => !B
 C <=> E
+C <=> A
+B <=> D
+E <=> V
 A + B + C => D
 =CAG
-?EDB
+?EAVBD

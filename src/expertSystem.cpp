@@ -179,6 +179,24 @@ t_status			ExpertSystem::resolveRule(const Rule &rule, std::vector<Operand *> &p
 	const std::vector<Token>	consequents = rule.getAllConsequents();
 	Token						result = getFactStatus(rule.getAllAntecedents(), path);
 
+	if (rule.getImplying() == DOUBLE_IMPLIES)
+	{
+		Token inverse_result = getFactStatus(rule.getAllConsequents(), path);
+		if ((result.getOperand()->getValue() == TRUE && inverse_result.getOperand()->getValue() == TRUE) ||
+		(result.getOperand()->getValue() != TRUE && inverse_result.getOperand()->getValue() != TRUE))
+			return TRUE;
+
+		if (inverse_result.getOperand()->getValue() != TRUE)
+		{
+			assignValues(rule.getAllConsequents(), result);
+			result = getFactStatus(rule.getAllAntecedents(), path);
+			if (result.getOperand()->getValue() == TRUE && inverse_result.getOperand()->getValue() == TRUE)
+				return TRUE;
+			else
+				return ERROR;
+		}
+	}
+
 	if (result.getOperand()->getValue() != TRUE || (result.getOperand()->getValue() == TRUE && result.getIsNegativeOperand() == true))
 		return operand.getValue();
 
