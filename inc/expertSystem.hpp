@@ -50,11 +50,11 @@ typedef enum	e_status
 #include "Rule.hpp"
 #include "LexerParser.hpp"
 
-#define CAST_T_LEXEM(x)			(*static_cast<t_lexem *>(x))
-#define CAST_TOKEN_VECTOR(x)	(static_cast<std::vector<Token> *>(x))
-#define CAST_RULE(x)			(static_cast<Rule *>(x))
-#define CAST_EXPERT_SYSTEM(x)	(static_cast<ExpertSystem *>(x))
-#define CAST_INT(x)				(*static_cast<int *>(x))
+#define T_LEXEM(x)			(*static_cast<t_lexem *>(x))
+#define TOKEN_VECTOR(x)		(static_cast<std::vector<Token> *>(x))
+#define RULE(x)				(static_cast<Rule *>(x))
+#define EXPERT_SYSTEM(x)	(static_cast<ExpertSystem *>(x))
+#define INT(x)				(*static_cast<int *>(x))
 
 t_status    		andOperator(Token const &, Token const &);
 t_status    		orOperator(Token const &, Token const &);
