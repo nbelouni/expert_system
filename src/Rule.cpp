@@ -2,6 +2,7 @@
 
 Rule::Rule()
 {
+	_contains_xor = false;
 }
 
 Rule::Rule(Rule const &rhs)
@@ -19,6 +20,7 @@ Rule				&Rule::operator=(Rule const &rhs)
 	const std::vector<Token> &tmp1 = rhs.getAllAntecedents();
 	const std::vector<Token> &tmp2 = rhs.getAllConsequents();
 
+	_contains_xor = rhs.getContainsXor();
 	for (size_t i = 0; i < tmp1.size(); i++)
 		_antecedents.push_back(tmp1[i]);
 	for (size_t i = 0; i < tmp2.size(); i++)
@@ -28,7 +30,6 @@ Rule				&Rule::operator=(Rule const &rhs)
 
 const std::vector<Token> &Rule::getAllAntecedents() const 
 {
-	
 	return (_antecedents);
 }
 
@@ -49,7 +50,9 @@ void				Rule::addAntecedent(Token const &rule)
 void				Rule::setAntecedents(std::vector<Token> rhs)
 {
 	for (size_t i = 0; i < rhs.size(); i++)
+	{
 		this->addAntecedent(rhs[i]);
+	}
 }
 
 
@@ -61,6 +64,11 @@ void				Rule::setImplying(t_lexem l)
 t_lexem				Rule::getImplying() const
 {
 	return _implying;
+}
+
+bool				Rule::getContainsXor() const
+{
+	return _contains_xor;
 }
 
 std::vector<Token>	const &Rule::getAllConsequents() const
@@ -77,7 +85,10 @@ Token				*Rule::getConsequent(int i)
 
 void				Rule::addConsequent(Token const &rule)
 {
+	if (rule.getType() == XOR)
+		_contains_xor = true;
 	_consequents.push_back(rule);
+	std::cout << "addConsequent() : contains_xor = " << _contains_xor << std::endl;
 }
 
 void				Rule::setConsequents(std::vector<Token> rhs)
@@ -153,4 +164,5 @@ void				Rule::clear()
 {
 	_antecedents.clear();
 	_consequents.clear();
+	_contains_xor = false;
 }

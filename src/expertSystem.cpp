@@ -103,7 +103,11 @@ void				ExpertSystem::addRule(Rule const & rule)
 			}
 		}
 	}
-	_rules.push_back(rule);
+	printRule(rule);
+	if (rule.getContainsXor() == true)
+		_rules.push_back(rule);
+	else
+		_rules.insert(_rules.begin(), rule);
 }
 
 void				ExpertSystem::pushQuery(Operand *operand)
@@ -175,11 +179,18 @@ void				ExpertSystem::assignValues(const std::vector<Token> facts, Token result)
 			tmp_token.getOperand()->setIsResolved(true);
 			token_stack.push_back(tmp_token);
 		}
+		else if (facts[i].getType() == XOR)
+		{
+			std::vector<Token>::iterator tmp1 = token_stack.erase(token_stack.end() - 3,token_stack.end() - 1);
+			tmp_token.getOperand()->setValue(assignXor(tmp1[0], tmp1[1], result.getOperand()->getValue()));
+			tmp_token.getOperand()->setIsResolved(true);
+			token_stack.push_back(tmp_token);
+		}
 	}
 
 	if (token_stack.size() != 1)
 	{
-		std::cout << "par ici ? 3" << std::endl;
+		std::cout << "________1" << std::endl;
 		std::cout << "ERROR" << std::endl;
 	}
 	assignValue(token_stack.front(), result.getOperand()->getValue());
@@ -242,14 +253,15 @@ t_status			ExpertSystem::resolveQuery(Operand &query, std::vector<Operand *> &pa
 	for (size_t i = 0; i < consequents.size(); i++)
 	{
 		tmp_result = resolveRule(consequents[i], path, *realOperand);
-		std::cout << "results : " << statusToString(tmp_result) << " - " << statusToString(result) << std::endl;
+		printStatus(tmp_result);
+		printStatus(result);
 		if (result == NOT_RESOLVED)
 		{
 			result = tmp_result;
 		}
 		else if (result != UNDEFINED && result != tmp_result)
 		{
-	std::cout << "par ici ? 1" << std::endl;
+		std::cout << "________2" << std::endl;
 			return ERROR;
 		}
 	}
@@ -271,7 +283,7 @@ void                ExpertSystem::resolveAllQueries()
 	{
 		char c = _queries.front()->getName();
 		result = resolveQuery(*popQuery(), path);
-	std::cout << "par ici ? 2" << std::endl;
+		std::cout << "________3" << std::endl;
 		printStatus(result);
 		if (result == ERROR)
 		{
@@ -326,6 +338,7 @@ void				ExpertSystem::printRules()
 
 void				ExpertSystem::printRule(Rule r)
 {
+		std::cout << "Contains XOR : " << r.getContainsXor() << std::endl;
 		std::cout << "Antecedents : " << std::endl;
 
 		printTokenList(r.getAllAntecedents());

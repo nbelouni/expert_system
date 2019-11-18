@@ -13,6 +13,7 @@ class Rule
 		std::vector<Token>	_antecedents;
 		std::vector<Token>	_consequents;
 		t_lexem				_implying;
+		bool				_contains_xor;
 	public:
 		Rule();
 		Rule(Rule const &);
@@ -26,6 +27,8 @@ class Rule
 
 		void				setImplying(t_lexem l);
 		t_lexem				getImplying() const;
+
+		bool				getContainsXor() const;
 
 		std::vector<Token> const &getAllConsequents() const ;
 		Token				*getConsequent(int);

@@ -62,6 +62,7 @@ t_status	    	xorOperator(Token const &, Token const &);
 
 t_status            assignAnd(Token const &, Token const &, t_status);
 t_status            assignOr(Token const &, Token const &, t_status);
+t_status            assignXor(Token const &, Token const &, t_status);
 void                assignValue(Token const &, t_status);
 
 void				printTokenList(std::vector<Token> newTokenList);
@@ -105,6 +106,7 @@ class ExpertSystem
         t_status			            resolveRule(const Rule &rule, std::vector<Operand *> &path, Operand &);
         t_status                        resolveQuery(Operand &, std::vector<Operand *> &);
         void                            resolveAllQueries();
+
 		void							printOperands();
 		void							printRules();
 		void							printRule(Rule );

@@ -281,8 +281,6 @@ void			LexerParser::addOperator(t_vector::iterator i, std::vector<void *> args)/
 		addExceptionMessage(_factsAndQueriesError);
 	else if (CAST_T_LEXEM(args[1]) != O_BRACKET && CAST_T_LEXEM(args[1]) != OPERAND && CAST_T_LEXEM(args[1]) != NEGATIVE)
 		addExceptionMessage(_error);
-    else if (CAST_RULE(args[2])->getAllAntecedents().size() > 0 && i->second == XOR)
-		addExceptionMessage("Unexpected token : line " + std::to_string(CAST_INT(args[4])) + " : " + i->first + " in resolution not allowed.");
     switch (i->second) {
         case AND :
             CAST_TOKEN_VECTOR(args[0])->push_back(Token(i->second, NULL, &andOperator, false));
