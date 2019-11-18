@@ -158,7 +158,9 @@ void				ExpertSystem::assignValues(const std::vector<Token> facts, Token result)
 	{
 		Token tmp_token = Token(OPERAND, new Operand('#'), nullptr, false);
 		if (facts[i].getType() == OPERAND)
+		{
 		   	token_stack.push_back(facts[i]);
+		}
 		else if (facts[i].getType() == AND)
 		{
 			std::vector<Token>::iterator tmp1 = token_stack.erase(token_stack.end() - 3,token_stack.end() - 1);
@@ -169,14 +171,17 @@ void				ExpertSystem::assignValues(const std::vector<Token> facts, Token result)
 		else if (facts[i].getType() == OR)
 		{
 			std::vector<Token>::iterator tmp1 = token_stack.erase(token_stack.end() - 3,token_stack.end() - 1);
-			tmp_token.getOperand()->setValue(assignAnd(tmp1[0], tmp1[1], result.getOperand()->getValue()));
+			tmp_token.getOperand()->setValue(assignOr(tmp1[0], tmp1[1], result.getOperand()->getValue()));
 			tmp_token.getOperand()->setIsResolved(true);
 			token_stack.push_back(tmp_token);
 		}
 	}
 
 	if (token_stack.size() != 1)
+	{
+		std::cout << "par ici ? 3" << std::endl;
 		std::cout << "ERROR" << std::endl;
+	}
 	assignValue(token_stack.front(), result.getOperand()->getValue());
 }
 
@@ -185,9 +190,10 @@ t_status			ExpertSystem::resolveRule(const Rule &rule, std::vector<Operand *> &p
 	const std::vector<Token>	consequents = rule.getAllConsequents();
 	Token						result = getFactStatus(rule.getAllAntecedents(), path);
 
-	if (result.getOperand()->getValue() != TRUE || (result.getOperand()->getValue() == TRUE && result.getIsNegativeOperand() == true))
+	if (result.getOperand()->getValue() == FALSE || (result.getOperand()->getValue() == TRUE && result.getIsNegativeOperand() == true))
+	{
 		return operand.getValue();
-
+	}
 	assignValues(rule.getAllConsequents(), result);
 	return operand.getValue();
 }
@@ -236,12 +242,14 @@ t_status			ExpertSystem::resolveQuery(Operand &query, std::vector<Operand *> &pa
 	for (size_t i = 0; i < consequents.size(); i++)
 	{
 		tmp_result = resolveRule(consequents[i], path, *realOperand);
+		std::cout << "results : " << statusToString(tmp_result) << " - " << statusToString(result) << std::endl;
 		if (result == NOT_RESOLVED)
 		{
 			result = tmp_result;
 		}
-		else if (result != tmp_result)
+		else if (result != UNDEFINED && result != tmp_result)
 		{
+	std::cout << "par ici ? 1" << std::endl;
 			return ERROR;
 		}
 	}
@@ -263,6 +271,7 @@ void                ExpertSystem::resolveAllQueries()
 	{
 		char c = _queries.front()->getName();
 		result = resolveQuery(*popQuery(), path);
+	std::cout << "par ici ? 2" << std::endl;
 		printStatus(result);
 		if (result == ERROR)
 		{

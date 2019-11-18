@@ -2,23 +2,31 @@
 
 int main(int argc, char **argv)
 {
-	try
+	if (argc < 2)
+		std::cerr << "No file." << std::endl;
+	else
 	{
-		if (argc < 2)
-			std::cerr << "No file." << std::endl;
-		else if (argc > 2)
-			std::cerr << "Too many arguments." << std::endl;
-		else
+		for (int i = 1; i < argc; i++)
 		{
+			std::cout << "File : \"" << argv[i] << "\""<< std::endl << std::endl;
 			LexerParser tmp;
-			tmp.Lexer(argv[1]);
-			ExpertSystem expertSystem = tmp.Parser();
-            expertSystem.resolveAllQueries();
+			ExpertSystem *expertSystem = NULL;
+			try
+			{
+				tmp.Lexer(argv[i]);
+
+				expertSystem = tmp.Parser();
+        		expertSystem->resolveAllQueries();
+			}
+			catch(std::exception &e)
+			{
+				std::cerr << e.what() << std::endl;
+			}
+			if (expertSystem)
+				delete expertSystem;
+			tmp.clear();
+			std::cout << std::endl << std::endl;
 		}
-	}
-	catch(std::exception &e)
-	{
-		std::cout << e.what() << std::endl;
 	}
 	return 0;
 }

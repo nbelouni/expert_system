@@ -35,7 +35,9 @@ t_status		orOperator(Token const &first, Token const &second)
 	bool second_value = second.getIsNegativeOperand() ? false: true;
 
     std::cout << "or operator" << std::endl;
-	if (first.getOperand()->getValue() == first_value || second.getOperand()->getValue() == second_value)
+	if (first.getOperand()->getValue() == UNDEFINED && second.getOperand()->getValue() == UNDEFINED)
+		return UNDEFINED;
+	else if (first.getOperand()->getValue() == first_value || second.getOperand()->getValue() == second_value)
     {
     std::cout << "true" << std::endl;
 		return TRUE;
@@ -70,7 +72,11 @@ t_status        assignAnd(Token const &first, Token const &second, t_status valu
 
     t_status tmp = first.getIsNegativeOperand() ? reverse_value : value;
 
-    if (first.getOperand()->getIsResolved() && first.getOperand()->getValue() != tmp)
+	std::cout << "assignAnd()" << std::endl;
+	printStatus(value);
+	std::cout << first.getOperand()->getName() << " : " << statusToString(first.getOperand()->getValue()) << " " << (first.getOperand()->getIsResolved() ? "true" : "false") << std::endl;
+	std::cout << second.getOperand()->getName() << " : " << statusToString(second.getOperand()->getValue()) << " " << (second.getOperand()->getIsResolved() ? "true" : "false") << std::endl;
+    if (first.getOperand()->getIsResolved() && first.getOperand()->getValue() != tmp && first.getOperand()->getValue() != UNDEFINED)
         return NOT_RESOLVED;
 
     first.getOperand()->setValue(tmp);
@@ -78,11 +84,16 @@ t_status        assignAnd(Token const &first, Token const &second, t_status valu
 
     tmp = second.getIsNegativeOperand() ? reverse_value : value;
 
-    if (second.getOperand()->getIsResolved() && second.getOperand()->getValue() != tmp)
+	std::cout << first.getOperand()->getName() << " : " << statusToString(first.getOperand()->getValue()) << " " << (first.getOperand()->getIsResolved() ? "true" : "false") << std::endl;
+	std::cout << second.getOperand()->getName() << " : " << statusToString(second.getOperand()->getValue()) << " " << (second.getOperand()->getIsResolved() ? "true" : "false") << std::endl;
+    if (second.getOperand()->getIsResolved() && second.getOperand()->getValue() != tmp && second.getOperand()->getValue() != UNDEFINED)
         return NOT_RESOLVED;
 
     second.getOperand()->setValue(second.getIsNegativeOperand() ? reverse_value : value);
     second.getOperand()->setIsResolved(true);
+	std::cout << "assignAnd()" << std::endl;
+	std::cout << first.getOperand()->getName() << " : " << statusToString(first.getOperand()->getValue()) << " " << (first.getOperand()->getIsResolved() ? "true" : "false") << std::endl;
+	std::cout << second.getOperand()->getName() << " : " << statusToString(second.getOperand()->getValue()) << " " << (second.getOperand()->getIsResolved() ? "true" : "false") << std::endl;
     return andOperator(first, second);
 }
 
@@ -96,6 +107,9 @@ t_status        assignOr(Token const &first, Token const &second, t_status value
 
     t_status tmp = first.getIsNegativeOperand() ? reverse_value : value;
 
+//	std::cout << "assignOr()" << std::endl;
+//	std::cout << first.getOperand()->getName() << " : " << statusToString(first.getOperand()->getValue()) << " " << (first.getOperand()->getIsResolved() ? "true" : "false") << std::endl;
+//	std::cout << second.getOperand()->getName() << " : " << statusToString(second.getOperand()->getValue()) << " " << (second.getOperand()->getIsResolved() ? "true" : "false") << std::endl;
     if (!first.getOperand()->getIsResolved())
     {
         first.getOperand()->setValue(UNDEFINED);
@@ -103,18 +117,18 @@ t_status        assignOr(Token const &first, Token const &second, t_status value
     }
     else if (first.getOperand()->getIsResolved() && first.getOperand()->getValue() != UNDEFINED && first.getOperand()->getValue() != tmp)
         return NOT_RESOLVED;
+		tmp = second.getIsNegativeOperand() ? reverse_value : value;
 
-    tmp = second.getIsNegativeOperand() ? reverse_value : value;
+		if (!second.getOperand()->getIsResolved())
+		{
+			second.getOperand()->setValue(UNDEFINED);
+			second.getOperand()->setIsResolved(true);
+		}
+    	else if (second.getOperand()->getIsResolved() && second.getOperand()->getValue() != UNDEFINED && second.getOperand()->getValue() != tmp)
+        	return NOT_RESOLVED;
 
-    if (!second.getOperand()->getIsResolved())
-    {
-        second.getOperand()->setValue(UNDEFINED);
-        second.getOperand()->setIsResolved(true);
-    }
-    else if (second.getOperand()->getIsResolved() && second.getOperand()->getValue() != UNDEFINED && second.getOperand()->getValue() != tmp)
-        return NOT_RESOLVED;
-
-
+//	std::cout << first.getOperand()->getName() << " : " << statusToString(first.getOperand()->getValue()) << " " << (first.getOperand()->getIsResolved() ? "true" : "false") << std::endl;
+//	std::cout << second.getOperand()->getName() << " : " << statusToString(second.getOperand()->getValue()) << " " << (second.getOperand()->getIsResolved() ? "true" : "false") << std::endl;
     return orOperator(first, second);
 }
 

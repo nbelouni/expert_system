@@ -12,6 +12,9 @@
 #include <regex>
 #include <exception>
 #include <stdexcept>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 
 
@@ -83,12 +86,14 @@ class ExpertSystem
 
 		ExpertSystem				&operator=(ExpertSystem const &rhs);
 
+		void							clear();
+
 		const std::vector<Operand *>	&getAllOperands() const;
 		Operand							*findOperand(const char);
 		Operand							*getOperand(int i) const;
 		void							addOperand(Operand *);
 
-		std::vector<Rule>	const		&getAllRules() const ;
+		std::vector<Rule>const			&getAllRules() const ;
 		Rule							*getRule(int i);
 		void							addRule(const Rule &);
 

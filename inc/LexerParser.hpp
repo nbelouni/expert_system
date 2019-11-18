@@ -46,7 +46,7 @@ class LexerParser
 		void			Lexer(char const *fileName);
 
 		t_lexem			findNextLexem(t_vector::iterator i);
-		ExpertSystem	Parser();
+		ExpertSystem	*Parser();
 		void			addOBracket(t_vector::iterator, std::vector<void *>);
 		void			addNegative(t_vector::iterator,  std::vector<void *>);
 		void			addCBracket(t_vector::iterator, std::vector<void *>);

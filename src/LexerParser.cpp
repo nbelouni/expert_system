@@ -124,60 +124,67 @@ void		LexerParser::printLexedFile()
 
 void		LexerParser::Lexer(char const *fileName)
 {
-	std::ifstream	file(fileName);
-	std::string		line;
-
-	if (file && file.is_open())
-	{
-		size_t line_index = 0;
-		while (std::getline(file, line))
-		{
-			line = std::regex_replace(line, std::regex("([ ]+)"), "");
-
-			std::string::iterator i = line.begin();
-
-			while (i != line.end())
-			{
-				int j = 0;
-
-				if (!(std::strncmp(&*i, _lexem[COMMENT].value.c_str(), 1)) || *i == 0)
-					break;
-				for (j = 1; j < 12; j++)
-				{
-
-					int lexem_length = (j == OPERAND) ? 1 : _lexem[j].value.length();
-
-					if (!std::strncmp(&*i, _lexem[j].value.c_str(), lexem_length) ||
-					(j == OPERAND && *i >= 'A' && *i <= 'Z'))
-					{
-						char str[lexem_length + 1];
-						std::strncpy(str, &*i, lexem_length);	
-						str[lexem_length] = 0;
-						std::string _name(str);
-
-						std::pair<std::string, t_lexem>	tmp(str, static_cast<t_lexem>(j));
-
-						_lexedFile.push_back(tmp);
-						i += lexem_length;
-						break;
-					}
-				}
-				if (j == 12)
-				{
-					addExceptionMessage("Syntax error: line " + std::to_string(line_index) + ": \"" + *i + "\" unknown.");
-					i++;
-				}
-			}
-			std::pair<std::string, e_lexem>	tmp("", ENDL);
-			_lexedFile.push_back(tmp);
-			line_index++;
-		}
-		file.close();
-	}
-	else
-		addExceptionMessage("Invalid file.");
 	try
 	{
+		int fd;
+		if ((fd = open(fileName, O_RDONLY)) < 0)
+		{
+			std::cerr << "\"" << fileName << "\" is invalid." << std::endl;
+			return;
+		}
+		else
+			close(fd);
+
+		std::ifstream	file(fileName);
+		std::string		line;
+
+		if (file && file.is_open())
+		{
+			size_t line_index = 0;
+			while (std::getline(file, line))
+			{
+				line = std::regex_replace(line, std::regex("([ ]+)"), "");
+    
+				std::string::iterator i = line.begin();
+    
+				while (i != line.end())
+				{
+					int j = 0;
+    
+					if (!(std::strncmp(&*i, _lexem[COMMENT].value.c_str(), 1)) || *i == 0)
+						break;
+					for (j = 1; j < 12; j++)
+					{
+    
+						int lexem_length = (j == OPERAND) ? 1 : _lexem[j].value.length();
+    
+						if (!std::strncmp(&*i, _lexem[j].value.c_str(), lexem_length) ||
+						(j == OPERAND && *i >= 'A' && *i <= 'Z'))
+						{
+							char str[lexem_length + 1];
+							std::strncpy(str, &*i, lexem_length);	
+							str[lexem_length] = 0;
+							std::string _name(str);
+    
+							std::pair<std::string, t_lexem>	tmp(str, static_cast<t_lexem>(j));
+    
+							_lexedFile.push_back(tmp);
+							i += lexem_length;
+							break;
+						}
+					}
+					if (j == 12)
+					{
+						addExceptionMessage("Syntax error: line " + std::to_string(line_index) + ": \"" + *i + "\" unknown.");
+						i++;
+					}
+				}
+				std::pair<std::string, e_lexem>	tmp("", ENDL);
+				_lexedFile.push_back(tmp);
+				line_index++;
+			}
+			file.close();
+		}
 		exceptionEmpty();
 	}
 	catch(std::exception &e)
@@ -371,9 +378,9 @@ void			LexerParser::addOperand(t_vector::iterator i, std::vector<void *> args)//
 
 }
 
-ExpertSystem	LexerParser::Parser()
+ExpertSystem	*LexerParser::Parser()
 {
-	ExpertSystem		expertSystem = ExpertSystem();
+	ExpertSystem		*expertSystem = new ExpertSystem();
 	Rule				newRule = Rule();
 	std::vector<Token>	newTokenList;
 	t_lexem 			nextLexem;
@@ -397,7 +404,7 @@ ExpertSystem	LexerParser::Parser()
             &newTokenList,
             &nextLexem,
             &newRule,
-            &expertSystem,
+            &(*expertSystem),
             &nLines,
             &lastImpliyng
         };
@@ -410,7 +417,7 @@ ExpertSystem	LexerParser::Parser()
 		args.clear();
 	}
 	
-	if (expertSystem.getAllRules().empty() || !_facts || !_queries)
+	if (expertSystem->getAllRules().empty() || !_facts || !_queries)
 		addExceptionMessage("Missing elements.");
 	else
 
@@ -420,6 +427,7 @@ ExpertSystem	LexerParser::Parser()
 	}
 	catch(std::exception &e)
 	{
+		delete expertSystem;
 		std::rethrow_exception(std::current_exception());
 	}
 
