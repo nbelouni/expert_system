@@ -72,51 +72,138 @@ Rule				*ExpertSystem::getRule(int i)
 	return (NULL);
 }
 
-void				ExpertSystem::addRule(Rule const & rule)
+std::vector<Token>	ExpertSystem::createAntsFromXor(Token token, bool in, std::vector<Token> array)
+{
+	std::vector<Token>	newAntecedents;
+
+	newAntecedents.push_back(Token(O_BRACKET, NULL, NULL, false));
+	newAntecedents.insert(newAntecedents.end(), array.begin(), array.end());
+	newAntecedents.push_back(Token(C_BRACKET, NULL, NULL, false));
+	newAntecedents.push_back(Token(AND, NULL, &andOperator, false));
+	
+	if (in == true)
+	{
+		if (token.getIsNegativeOperand() == true)
+			token.setIsNegativeOperand(false);
+		else
+			token.setIsNegativeOperand(true);
+	}
+	newAntecedents.push_back(token);
+	return (newAntecedents);
+}
+
+std::vector<Token>	ExpertSystem::createConsFromXor(Token token, bool in)
+{
+	std::vector<Token>	newConsequents;
+
+	if (in == false)
+	{
+		if (token.getIsNegativeOperand() == false)
+			token.setIsNegativeOperand(true);
+		else
+			token.setIsNegativeOperand(false);
+	}
+	newConsequents.push_back(token);
+	return (newConsequents);
+}
+void				ExpertSystem::createRuleFromXor(const Rule &rule)
+{
+	Rule				tmpRule;
+	std::vector<Token>	ants = rule.getAllAntecedents();//hahaha
+	Token				first = rule.getAllConsequents()[0];
+	Token				second = rule.getAllConsequents()[2];
+	
+	/*
+		A => B ^ C
+		1st rule  : (A) + B => !C
+		2nd rule  : (A) + !B => C
+		3rd rule  : (A) + C => !B
+		4th rule  : (A) + !C => B
+	*/
+	tmpRule.setAntecedents(createAntsFromXor(first, false, rule.getAllAntecedents()));
+	tmpRule.setConsequents(createConsFromXor(second, false));
+	tmpRule.setImplying(rule.getImplying());
+	addRule(tmpRule);
+
+	tmpRule.clear();
+
+	tmpRule.setAntecedents(createAntsFromXor(first, true, rule.getAllAntecedents()));
+	tmpRule.setConsequents(createConsFromXor(second, true));
+	tmpRule.setImplying(rule.getImplying());
+	addRule(tmpRule);
+
+	tmpRule.clear();
+
+	tmpRule.setAntecedents(createAntsFromXor(second, false, rule.getAllAntecedents()));
+	tmpRule.setConsequents(createConsFromXor(first, false));
+	tmpRule.setImplying(rule.getImplying());
+	addRule(tmpRule);
+
+	tmpRule.clear();
+
+	tmpRule.setAntecedents(createAntsFromXor(second, true, rule.getAllAntecedents()));
+	tmpRule.setConsequents(createConsFromXor(first, true));
+	tmpRule.setImplying(rule.getImplying());
+	addRule(tmpRule);
+
+	tmpRule.clear();
+
+}
+
+void				ExpertSystem::addRule(Rule &rule)
 {
 	std::vector<Token>	tmpToken = rule.getAllAntecedents();
 	Operand 			*tmpOperand = NULL;
 
-	for (size_t i = 0; i < tmpToken.size(); i++)
+	if (rule.getContainsXor())
 	{
-		if (tmpToken[i].getType() == OPERAND)
+		// create 4 rules from rule
+		createRuleFromXor(rule);
+	}
+	else
+	{
+		printRule(rule);
+		rule.reorderTokenArrays();
+		for (size_t i = 0; i < tmpToken.size(); i++)
 		{
-			tmpOperand = findOperand(tmpToken[i].getOperand()->getName());
-			if (tmpOperand)
+			if (tmpToken[i].getType() == OPERAND)
 			{
-				tmpOperand->addAntecedent(rule);
-				if (rule.getImplying() == DOUBLE_IMPLIES)
+				tmpOperand = findOperand(tmpToken[i].getOperand()->getName());
+				if (tmpOperand)
 				{
-					tmpOperand->addConsequent(rule);
+					tmpOperand->addAntecedent(rule);
+					if (rule.getImplying() == DOUBLE_IMPLIES)
+					{
+						tmpOperand->addConsequent(rule);
+					}
 				}
 			}
 		}
-	}
 
-	tmpToken = rule.getAllConsequents();
-	for (size_t i = 0; i < tmpToken.size(); i++)
-	{
-		if (tmpToken[i].getType() == OPERAND)
+		tmpToken = rule.getAllConsequents();
+		for (size_t i = 0; i < tmpToken.size(); i++)
 		{
-			tmpOperand = findOperand(tmpToken[i].getOperand()->getName());
-			if (tmpOperand)
+			if (tmpToken[i].getType() == OPERAND)
 			{
-				tmpOperand->addConsequent(rule);
-				if (rule.getImplying() == DOUBLE_IMPLIES)
-					tmpOperand->addAntecedent(rule);
+				tmpOperand = findOperand(tmpToken[i].getOperand()->getName());
+				if (tmpOperand)
+				{
+					tmpOperand->addConsequent(rule);
+					if (rule.getImplying() == DOUBLE_IMPLIES)
+						tmpOperand->addAntecedent(rule);
+				}
 			}
 		}
-	}
-	_rules.push_back(rule);
-	if (rule.getImplying() == DOUBLE_IMPLIES)
-	{
-		Rule	reverseRule;
+		_rules.push_back(rule);
+		if (rule.getImplying() == DOUBLE_IMPLIES)
+		{
+			Rule	reverseRule;
 
-		reverseRule.setAntecedents(rule.getAllConsequents());
-		reverseRule.setConsequents(rule.getAllAntecedents());
-		_rules.push_back(reverseRule);
+			reverseRule.setAntecedents(rule.getAllConsequents());
+			reverseRule.setConsequents(rule.getAllAntecedents());
+			_rules.push_back(reverseRule);
+		}
 	}
-
 }
 
 void				ExpertSystem::pushQuery(Operand *operand)
@@ -150,7 +237,7 @@ Token				ExpertSystem::getFactStatus(const std::vector<Token> facts, std::vector
 				resolveQuery(*(facts[i].getOperand()), path);
 			token_stack.push_back(facts[i]);
 		}
-		else if (facts[i].getType() == AND || facts[i].getType() == OR || facts[i].getType() == XOR)
+		else if (facts[i].getType() == AND || facts[i].getType() == OR)
 		{
 
 			Token tmp = token_stack.back();
@@ -185,13 +272,6 @@ void				ExpertSystem::assignValues(const std::vector<Token> facts, Token result)
 		{
 			std::vector<Token>::iterator tmp1 = token_stack.erase(token_stack.end() - 3,token_stack.end() - 1);
 			tmp_token.getOperand()->setValue(assignOr(tmp1[0], tmp1[1], result.getOperand()->getValue()));
-			tmp_token.getOperand()->setIsResolved(true);
-			token_stack.push_back(tmp_token);
-		}
-		else if (facts[i].getType() == XOR)
-		{
-			std::vector<Token>::iterator tmp1 = token_stack.erase(token_stack.end() - 3,token_stack.end() - 1);
-			tmp_token.getOperand()->setValue(assignXor(tmp1[0], tmp1[1], result.getOperand()->getValue()));
 			tmp_token.getOperand()->setIsResolved(true);
 			token_stack.push_back(tmp_token);
 		}
@@ -337,22 +417,16 @@ void				ExpertSystem::printRules()
 	for (size_t i = 0; i < _rules.size(); i++)
 	{
 		std::cout << " Rule " << i << " : " << std::endl;
-		std::cout << "Antecedents : " << std::endl;
-
-		printTokenList(_rules[i].getAllAntecedents());
-		std::cout << "Consequents : " << std::endl;
-		printTokenList(_rules[i].getAllConsequents());
+		printRule(_rules[i]);
 	}
 }
 
 void				ExpertSystem::printRule(Rule r)
 {
-		std::cout << "Contains XOR : " << r.getContainsXor() << std::endl;
-		std::cout << "Antecedents : " << std::endl;
-
-		printTokenList(r.getAllAntecedents());
-		std::cout << "Consequents : " << std::endl;
-		printTokenList(r.getAllConsequents());
+		printTokenList(r.getAllAntecedents(), false);
+		
+		std::cout << printLexemValue(r.getImplying()) << " ";
+		printTokenList(r.getAllConsequents(), true);
 }
 
 ExpertSystem::CannotBeResolvedException::CannotBeResolvedException(std::string error) : _message(error)

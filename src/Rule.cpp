@@ -103,7 +103,7 @@ void                Rule::reorderArray(std::vector<Token> &array)
 	std::vector<Token>	operators;
 
 	std::vector<Token>::iterator i;
-
+	
 	for (i = array.begin(); i != array.end(); i++)
 	{
 		if (i->getType() == OPERAND)

@@ -133,43 +133,6 @@ t_status        assignOr(Token const &first, Token const &second, t_status value
     return orOperator(first, second);
 }
 
-t_status        assignXor(Token const &first, Token const &second, t_status value)
-{
-    t_status reverse_value = getReverseValue(value);
-
-    t_status tmp = first.getIsNegativeOperand() ? reverse_value : value;
-
-	std::cout << "assignXOR()" << std::endl;
-//	printStatus(value);
-//	std::cout << first.getOperand()->getName() << " : " << statusToString(first.getOperand()->getValue()) << " " << (first.getOperand()->getIsResolved() ? "true" : "false") << std::endl;
-//	std::cout << second.getOperand()->getName() << " : " << statusToString(second.getOperand()->getValue()) << " " << (second.getOperand()->getIsResolved() ? "true" : "false") << std::endl;
-	if (!first.getOperand()->getIsResolved() && !second.getOperand()->getIsResolved())
-        return NOT_RESOLVED;
-    if (first.getOperand()->getIsResolved() && first.getOperand()->getValue() != tmp)
-        return NOT_RESOLVED;
-    tmp = second.getIsNegativeOperand() ? reverse_value : value;
-    if (second.getOperand()->getIsResolved() && second.getOperand()->getValue() != tmp)
-        return NOT_RESOLVED;
-
-	if (second.getOperand()->getIsResolved() && !first.getOperand()->getIsResolved())
-	{
-    	first.getOperand()->setValue(getReverseValue(second.getOperand()->getValue()));
-    	first.getOperand()->setIsResolved(true);
-	}
-	else if (first.getOperand()->getIsResolved() && !second.getOperand()->getIsResolved())
-	{
-    	second.getOperand()->setValue(getReverseValue(first.getOperand()->getValue()));
-    	second.getOperand()->setIsResolved(true);
-	}
-
-//	std::cout << first.getOperand()->getName() << " : " << statusToString(first.getOperand()->getValue()) << " " << (first.getOperand()->getIsResolved() ? "true" : "false") << std::endl;
-//	std::cout << second.getOperand()->getName() << " : " << statusToString(second.getOperand()->getValue()) << " " << (second.getOperand()->getIsResolved() ? "true" : "false") << std::endl;
-//
-//	std::cout << first.getOperand()->getName() << " : " << statusToString(first.getOperand()->getValue()) << " " << (first.getOperand()->getIsResolved() ? "true" : "false") << std::endl;
-//	std::cout << second.getOperand()->getName() << " : " << statusToString(second.getOperand()->getValue()) << " " << (second.getOperand()->getIsResolved() ? "true" : "false") << std::endl;
-    return xorOperator(first, second);
-}
-
 void            assignValue(Token const &token, t_status value)
 {
     t_status reverse_value = (value == NOT_RESOLVED) ? TRUE :

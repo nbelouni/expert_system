@@ -65,7 +65,7 @@ t_status            assignOr(Token const &, Token const &, t_status);
 t_status            assignXor(Token const &, Token const &, t_status);
 void                assignValue(Token const &, t_status);
 
-void				printTokenList(std::vector<Token> newTokenList);
+void				printTokenList(std::vector<Token> newTokenList, bool endl);
 std::string			printLexem(t_lexem lex);
 std::string			printLexemValue(t_lexem lex);
 void                printStatus(t_status result);
@@ -94,9 +94,13 @@ class ExpertSystem
 		Operand							*getOperand(int i) const;
 		void							addOperand(Operand *);
 
+		std::vector<Token>				createAntsFromXor(Token token, bool in, std::vector<Token> array);
+
+		std::vector<Token>				createConsFromXor(Token token, bool in);
+		void							createRuleFromXor(const Rule &rule);
 		std::vector<Rule>const			&getAllRules() const ;
 		Rule							*getRule(int i);
-		void							addRule(const Rule &);
+		void							addRule(Rule &);
 
 		void							pushQuery(Operand *);
 		Operand							*popQuery();

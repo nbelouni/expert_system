@@ -24,6 +24,7 @@ class Token
 		Operand			*getOperand() const;
 		t_operator		getFunction() const;
 		bool			getIsNegativeOperand() const;
+		void			setIsNegativeOperand(bool const b);
 
 };
 

@@ -41,3 +41,7 @@ bool				Token::getIsNegativeOperand() const
 	return (_is_negative_operand);
 }
 
+void				Token::setIsNegativeOperand(bool const b)
+{
+	_is_negative_operand = b;
+}

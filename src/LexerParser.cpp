@@ -193,7 +193,7 @@ void		LexerParser::Lexer(char const *fileName)
 	}
 }
 
-void			printTokenList(std::vector<Token> newTokenList)
+void			printTokenList(std::vector<Token> newTokenList, bool endl)
 {
 		for (size_t j = 0; j < newTokenList.size(); j++)
 		{
@@ -204,7 +204,8 @@ void			printTokenList(std::vector<Token> newTokenList)
 			else
 			std::cout << printLexemValue(newTokenList[j].getType()) << " " ;
 		}
-		std::cout << std::endl;
+		if (endl)
+			std::cout << std::endl;
 }
 
 t_lexem			LexerParser::findNextLexem(t_vector::iterator i)
@@ -215,6 +216,14 @@ t_lexem			LexerParser::findNextLexem(t_vector::iterator i)
 		return i->second;
 	return ENDL;
 }
+
+/*
+**	All the functions addXxx(i, args) are in _lexem (hashtable) (initialized line 6)
+**
+**	They are called in Parser()
+**
+**	All exceptions are kept until the end of parsing
+*/
 
 void			LexerParser::addOBracket(t_vector::iterator i, std::vector<void *> args)
 {
@@ -272,8 +281,6 @@ void			LexerParser::addImplies(t_vector::iterator i, std::vector<void *> args)
 		addExceptionMessage("Unexpected token : line " + std::to_string(INT(args[4])) + " : '(' not closed.");
 
 	RULE(args[2])->setImplying(i->second);
-	std::cout << "lexem : -" << printLexem(RULE(args[2])->getImplying()) << "- " << std::endl;
-	
 	RULE(args[2])->setAntecedents(*TOKEN_VECTOR(args[0]));
 	TOKEN_VECTOR(args[0])->clear();
 }
@@ -336,7 +343,7 @@ void			LexerParser::addOperand(t_vector::iterator i, std::vector<void *> args)
 		//	adding operand to current rule
 		TOKEN_VECTOR(args[0])->push_back(Token(i->second, EXPERT_SYSTEM(args[3])->findOperand(i->first.c_str()[0]), NULL, negSign));
         
-		// if -not end of file or -is end of rule
+		// if not end of file or is end of rule
 		if ((i + 1) != _lexedFile.end() &&
 			(T_LEXEM(args[1]) == NEGATIVE || T_LEXEM(args[1]) == O_BRACKET || T_LEXEM(args[1]) == OPERAND || T_LEXEM(args[1]) == FACTS))
 		{
@@ -344,7 +351,8 @@ void			LexerParser::addOperand(t_vector::iterator i, std::vector<void *> args)
 			if (_brackets > 0)
 				addExceptionMessage("Unexpected token : line " + std::to_string(INT(args[4])) + " : '(' not closed.");
 
-			//	antecedents not set -> adding antecedent
+			//	antecedents not set -> adding antecedent 
+			// SHOULD NEVER HAPPEN BUT i dont remember why i did this, so i keep it
 			if (RULE(args[2])->getAllAntecedents().size() == 0)
 			{
 				if (T_LEXEM(args[1]) != IMPLIES && T_LEXEM(args[1]) != DOUBLE_IMPLIES)
@@ -360,7 +368,7 @@ void			LexerParser::addOperand(t_vector::iterator i, std::vector<void *> args)
 			else // antecedents already set -> set consequents
 			{
 				RULE(args[2])->setConsequents(*TOKEN_VECTOR(args[0]));
-				RULE(args[2])->reorderTokenArrays();
+	//			RULE(args[2])->reorderTokenArrays();
 				EXPERT_SYSTEM(args[3])->addRule(*RULE(args[2]));
 				//if (RULE(args[2])->getContainsXor())
 				//	std::cout << "RULE CONTAINS XOR !!" << std::endl;
@@ -447,7 +455,6 @@ ExpertSystem	*LexerParser::Parser()
 		std::rethrow_exception(std::current_exception());
 	}
 
-	expertSystem->printRules();
 	return expertSystem;
 }
 
