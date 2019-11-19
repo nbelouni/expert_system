@@ -84,7 +84,16 @@ const Rule				*Operand::getConsequent(int i) const
 
 void				Operand::addConsequent(Rule const &rule)
 {
-	_consequents.push_back(rule);
+	if (rule.getContainsXor())
+	{
+		std::vector<Rule> tmp;
+		tmp.push_back(rule);
+		tmp.insert(tmp.end(), _consequents.begin(), _consequents.end());
+		_consequents.clear();
+		_consequents = tmp;
+	}
+	else
+		_consequents.push_back(rule);
 }
 
 void				Operand::printRules()

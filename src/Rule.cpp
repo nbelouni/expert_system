@@ -21,6 +21,7 @@ Rule				&Rule::operator=(Rule const &rhs)
 	const std::vector<Token> &tmp2 = rhs.getAllConsequents();
 
 	_contains_xor = rhs.getContainsXor();
+	_implying = rhs.getImplying();
 	for (size_t i = 0; i < tmp1.size(); i++)
 		_antecedents.push_back(tmp1[i]);
 	for (size_t i = 0; i < tmp2.size(); i++)
@@ -88,7 +89,6 @@ void				Rule::addConsequent(Token const &rule)
 	if (rule.getType() == XOR)
 		_contains_xor = true;
 	_consequents.push_back(rule);
-	std::cout << "addConsequent() : contains_xor = " << _contains_xor << std::endl;
 }
 
 void				Rule::setConsequents(std::vector<Token> rhs)

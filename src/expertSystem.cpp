@@ -74,8 +74,9 @@ Rule				*ExpertSystem::getRule(int i)
 
 void				ExpertSystem::addRule(Rule const & rule)
 {
-	std::vector<Token> tmpToken = rule.getAllAntecedents();
-	Operand *tmpOperand = NULL;
+	std::vector<Token>	tmpToken = rule.getAllAntecedents();
+	Operand 			*tmpOperand = NULL;
+
 	for (size_t i = 0; i < tmpToken.size(); i++)
 	{
 		if (tmpToken[i].getType() == OPERAND)
@@ -85,10 +86,13 @@ void				ExpertSystem::addRule(Rule const & rule)
 			{
 				tmpOperand->addAntecedent(rule);
 				if (rule.getImplying() == DOUBLE_IMPLIES)
+				{
 					tmpOperand->addConsequent(rule);
+				}
 			}
 		}
 	}
+
 	tmpToken = rule.getAllConsequents();
 	for (size_t i = 0; i < tmpToken.size(); i++)
 	{
@@ -103,11 +107,16 @@ void				ExpertSystem::addRule(Rule const & rule)
 			}
 		}
 	}
-	printRule(rule);
-	if (rule.getContainsXor() == true)
-		_rules.push_back(rule);
-	else
-		_rules.insert(_rules.begin(), rule);
+	_rules.push_back(rule);
+	if (rule.getImplying() == DOUBLE_IMPLIES)
+	{
+		Rule	reverseRule;
+
+		reverseRule.setAntecedents(rule.getAllConsequents());
+		reverseRule.setConsequents(rule.getAllAntecedents());
+		_rules.push_back(reverseRule);
+	}
+
 }
 
 void				ExpertSystem::pushQuery(Operand *operand)
@@ -253,8 +262,8 @@ t_status			ExpertSystem::resolveQuery(Operand &query, std::vector<Operand *> &pa
 	for (size_t i = 0; i < consequents.size(); i++)
 	{
 		tmp_result = resolveRule(consequents[i], path, *realOperand);
-		printStatus(tmp_result);
-		printStatus(result);
+		std::cout << "new result : ";printStatus(tmp_result);
+		std::cout << "result : ";printStatus(result);
 		if (result == NOT_RESOLVED)
 		{
 			result = tmp_result;

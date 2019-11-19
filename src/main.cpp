@@ -16,7 +16,6 @@ int main(int argc, char **argv)
 				tmp.Lexer(argv[i]);
 
 				expertSystem = tmp.Parser();
-				expertSystem->printRules();
         		expertSystem->resolveAllQueries();
 			}
 			catch(std::exception &e)
