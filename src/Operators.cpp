@@ -1,13 +1,8 @@
 #include "expertSystem.hpp"
 
-t_status		getReverseValue(t_status value)
-{
-	return (value == NOT_RESOLVED) ? TRUE :
-           (value == FALSE) ? TRUE:
-           (value == TRUE) ? FALSE:
-           (value == UNDEFINED) ? UNDEFINED :
-           FALSE;
-}
+/*
+**	Debug
+*/
 void            printStatus(t_status result)
 {
 	std::cout << (result == NOT_RESOLVED ?	"NOT_RESOLVED" :
@@ -26,6 +21,21 @@ const char *            statusToString(t_status result)
 											"ERROR");
 }
 
+/*
+**	if token (!= orepand) is negative
+*/
+t_status		getReverseValue(t_status value)
+{
+	return (value == NOT_RESOLVED) ? TRUE :
+           (value == FALSE) ? TRUE:
+           (value == TRUE) ? FALSE:
+           (value == UNDEFINED) ? UNDEFINED :
+           FALSE;
+}
+
+/*
+**	operators in equation
+*/
 t_status		andOperator(Token const &first, Token const &second)
 {
 	bool first_value = first.getIsNegativeOperand() ? false : true;
@@ -70,6 +80,9 @@ t_status		xorOperator(Token const &first, Token const &second)
 		return FALSE;
 }
 
+/*
+**	assign value to operand in result
+*/
 t_status        assignAnd(Token const &first, Token const &second, t_status value)
 {
 	
@@ -77,7 +90,7 @@ t_status        assignAnd(Token const &first, Token const &second, t_status valu
 
     t_status tmp = first.getIsNegativeOperand() ? reverse_value : value;
 
-std::cout << "assignAnd()" << std::endl;
+//std::cout << "assignAnd()" << std::endl;
 	//printStatus(value);
 	//std::cout << first.getOperand()->getName() << " : " << statusToString(first.getOperand()->getValue()) << " " << (first.getOperand()->getIsResolved() ? "true" : "false") << std::endl;
 	//std::cout << second.getOperand()->getName() << " : " << statusToString(second.getOperand()->getValue()) << " " << (second.getOperand()->getIsResolved() ? "true" : "false") << std::endl;
@@ -108,7 +121,7 @@ t_status        assignOr(Token const &first, Token const &second, t_status value
 
     t_status tmp = first.getIsNegativeOperand() ? reverse_value : value;
 
-	std::cout << "assignOr()" << std::endl;
+//	std::cout << "assignOr()" << std::endl;
 //	//std::cout << first.getOperand()->getName() << " : " << statusToString(first.getOperand()->getValue()) << " " << (first.getOperand()->getIsResolved() ? "true" : "false") << std::endl;
 //	//std::cout << second.getOperand()->getName() << " : " << statusToString(second.getOperand()->getValue()) << " " << (second.getOperand()->getIsResolved() ? "true" : "false") << std::endl;
     if (!first.getOperand()->getIsResolved())
@@ -141,7 +154,7 @@ void            assignValue(Token const &token, t_status value)
                              (value == UNDEFINED) ? UNDEFINED :
                              FALSE;
 
-	std::cout << "assignValue()" << std::endl;
+//	std::cout << "assignValue()" << std::endl;
     t_status tmp = token.getIsNegativeOperand() ? reverse_value : value;
     if (token.getOperand()->getIsResolved() && token.getOperand()->getValue() != tmp)
         token.getOperand()->setValue(ERROR);

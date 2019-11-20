@@ -13,6 +13,7 @@ Rule::~Rule()
 {
 	_antecedents.clear();
 	_consequents.clear();
+	_to_string.clear();
 }
 
 Rule				&Rule::operator=(Rule const &rhs)
@@ -22,6 +23,7 @@ Rule				&Rule::operator=(Rule const &rhs)
 
 	_contains_xor = rhs.getContainsXor();
 	_implying = rhs.getImplying();
+	_to_string = rhs.getToString();
 	for (size_t i = 0; i < tmp1.size(); i++)
 		_antecedents.push_back(tmp1[i]);
 	for (size_t i = 0; i < tmp2.size(); i++)
@@ -65,6 +67,16 @@ void				Rule::setImplying(t_lexem l)
 t_lexem				Rule::getImplying() const
 {
 	return _implying;
+}
+
+void				Rule::setToString(std::string s)
+{
+	_to_string = s;
+}
+
+std::string			Rule::getToString() const
+{
+	return (_to_string);
 }
 
 bool				Rule::getContainsXor() const

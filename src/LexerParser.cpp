@@ -208,6 +208,39 @@ void			printTokenList(std::vector<Token> newTokenList, bool endl)
 			std::cout << std::endl;
 }
 
+std::string		tokenListToString(std::vector<Token> newTokenList, bool endl)
+{
+	std::string	out;
+
+	for (size_t j = 0; j < newTokenList.size(); j++)
+	{
+		if (newTokenList[j].getIsNegativeOperand() == true)
+			out.append("!");
+		if (newTokenList[j].getType() == OPERAND)
+		{
+			out.push_back(newTokenList[j].getOperand()->getName());
+			out.append(" ");
+		}
+		else
+			out.append(printLexemValue(newTokenList[j].getType()) + " ");
+	}
+	if (endl)
+		out.append("\n");
+
+	return out;
+}
+
+std::string		ruleToString(Rule r)
+{
+	std::string	out;
+	out.append(tokenListToString(r.getAllAntecedents(), false));
+	
+	out.append(printLexemValue(r.getImplying()) + " ");
+	out.append(tokenListToString(r.getAllConsequents(), true));
+
+	return out;
+}
+
 t_lexem			LexerParser::findNextLexem(t_vector::iterator i)
 {
 	while (i != _lexedFile.end() && i->second == ENDL)

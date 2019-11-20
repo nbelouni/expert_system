@@ -66,8 +66,10 @@ t_status            assignXor(Token const &, Token const &, t_status);
 void                assignValue(Token const &, t_status);
 
 void				printTokenList(std::vector<Token> newTokenList, bool endl);
+std::string			ruleToString(Rule r);
 std::string			printLexem(t_lexem lex);
 std::string			printLexemValue(t_lexem lex);
+std::string			tokenListToString(std::vector<Token> newTokenList, bool endl);
 void                printStatus(t_status result);
 const char *        statusToString(t_status result);
 
