@@ -177,4 +177,5 @@ void				Rule::clear()
 	_antecedents.clear();
 	_consequents.clear();
 	_contains_xor = false;
+	_to_string.clear();
 }

@@ -1,7 +1,0 @@
-!G + !V => X
-!A => B
-!A => !B
-C <=> E
-A + B + C => D
-=CAG
-?EDB

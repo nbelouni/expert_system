@@ -65,6 +65,7 @@ t_status            assignOr(Token const &, Token const &, t_status);
 t_status            assignXor(Token const &, Token const &, t_status);
 void                assignValue(Token const &, t_status);
 
+void				printToken(Token &t);
 void				printTokenList(std::vector<Token> newTokenList, bool endl);
 std::string			ruleToString(Rule r);
 std::string			printLexem(t_lexem lex);

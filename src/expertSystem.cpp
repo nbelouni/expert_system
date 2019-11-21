@@ -126,12 +126,16 @@ void				ExpertSystem::createRuleFromXor(const Rule &rule)
 	tmpRule.setImplying(rule.getImplying());
 	addRule(tmpRule);
 
+	std::cout << "-" << tmpRule.getToString();
+
 	tmpRule.clear();
 
 	tmpRule.setAntecedents(createAntsFromXor(first, true, rule.getAllAntecedents()));
 	tmpRule.setConsequents(createConsFromXor(second, true));
 	tmpRule.setImplying(rule.getImplying());
 	addRule(tmpRule);
+
+	std::cout << "              -" << tmpRule.getToString();
 
 	tmpRule.clear();
 
@@ -140,12 +144,16 @@ void				ExpertSystem::createRuleFromXor(const Rule &rule)
 	tmpRule.setImplying(rule.getImplying());
 	addRule(tmpRule);
 
+	std::cout << "              -" << tmpRule.getToString();
+
 	tmpRule.clear();
 
 	tmpRule.setAntecedents(createAntsFromXor(second, true, rule.getAllAntecedents()));
 	tmpRule.setConsequents(createConsFromXor(first, true));
 	tmpRule.setImplying(rule.getImplying());
 	addRule(tmpRule);
+
+	std::cout << "              -" << tmpRule.getToString();
 
 	tmpRule.clear();
 
@@ -156,16 +164,17 @@ void				ExpertSystem::addRule(Rule &rule)
 	std::vector<Token>	tmpToken = rule.getAllAntecedents();
 	Operand 			*tmpOperand = NULL;
 
+	rule.setToString(ruleToString(rule));
 	if (rule.getContainsXor())
 	{
 		/*
 		**	create 4 rules from rule
 		*/
+		std::cout << rule.getToString() << "IS EQUAL TO : ";
 		createRuleFromXor(rule);
 	}
 	else
 	{
-		rule.setToString(ruleToString(rule));
 		rule.reorderTokenArrays();
 		for (size_t i = 0; i < tmpToken.size(); i++)
 		{
@@ -244,12 +253,14 @@ Token				ExpertSystem::getFactStatus(const std::vector<Token> facts, std::vector
 	**							add to facts array
 	*/
 
+	printTokenList(facts, true);
 	std::vector<Token>				token_stack;
 	for (size_t i = 0; i < facts.size(); i++)
 	{
 		Token tmp_token = Token(OPERAND, new Operand('#'), nullptr, false);
 		if (facts[i].getType() == OPERAND)
 		{
+//			std::cout << "____________1" << std::endl;
 			tabs++;
 			for (int i_tabs = 0; i_tabs < tabs; i_tabs++)
 				std::cout << "    ";
@@ -260,18 +271,45 @@ Token				ExpertSystem::getFactStatus(const std::vector<Token> facts, std::vector
 				resolveQuery(*(facts[i].getOperand()), path);
 			}
 
+			if ((facts[i].getOperand()->getValue() == TRUE && facts[i].getIsNegativeOperand()) || (facts[i].getOperand()->getValue() == FALSE && !facts[i].getIsNegativeOperand()))
+			{
+				tmp_token.getOperand()->setValue(FALSE);
+			}
+			else if (facts[i].getOperand()->getValue() == UNDEFINED)
+			{
+				tmp_token.getOperand()->setValue(UNDEFINED);
+			}
+			else
+			{
+				tmp_token.getOperand()->setValue(TRUE);
+			}
+			tmp_token.getOperand()->setIsResolved(TRUE);
 			for (int i_tabs = 0; i_tabs < tabs; i_tabs++)
 				std::cout << "	";
 			std::cout << "Value = " << statusToString(facts[i].getOperand()->getValue()) << std::endl;
-
-			token_stack.push_back(facts[i]);
+			
+//			std::cout << "Name = " << tmp_token.getOperand()->getName() << std::endl;
+//			std::cout << "Is Negative = " << (tmp_token.getIsNegativeOperand() ? "TRUE" : "FALSE") << std::endl;
+//			std::cout << "Value = " << statusToString(tmp_token.getOperand()->getValue()) << std::endl;
+//			std::cout << "Is resolved = " << (tmp_token.getOperand()->getIsResolved() ? "TRUE" : "FALSE") << std::endl;
+//			token_stack.push_back(facts[i]);
+			token_stack.push_back(tmp_token);
 			tabs--;
 		}
 		else if (facts[i].getType() == AND || facts[i].getType() == OR || facts[i].getType() == XOR)
 		{
+//			std::cout << "____________2" << std::endl;
 
 			Token tmp = token_stack.back();
+//			std::cout << "Name = " << tmp.getOperand()->getName() << std::endl;
+//			std::cout << "Is Negative = " << (tmp.getIsNegativeOperand() ? "TRUE" : "FALSE") << std::endl;
+//			std::cout << "Value = " << statusToString(tmp.getOperand()->getValue()) << std::endl;
+//			std::cout << "Is resolved = " << (tmp.getOperand()->getIsResolved() ? "TRUE" : "FALSE") << std::endl;
 			token_stack.pop_back();
+//			std::cout << "Name = " << token_stack.back().getOperand()->getName() << std::endl;
+//			std::cout << "Is Negative = " << (token_stack.back().getIsNegativeOperand() ? "TRUE" : "FALSE") << std::endl;
+//			std::cout << "Value = " << statusToString(token_stack.back().getOperand()->getValue()) << std::endl;
+//			std::cout << "Is resolved = " << (token_stack.back().getOperand()->getIsResolved() ? "TRUE" : "FALSE") << std::endl;
 			tmp_token.getOperand()->setValue(facts[i].getFunction()(tmp, token_stack.back()));
 			token_stack.pop_back();
 			token_stack.push_back(tmp_token);
@@ -309,7 +347,7 @@ void				ExpertSystem::assignValues(const std::vector<Token> consequents, Token r
 
 	if (token_stack.size() != 1)
 	{
-		std::cout << "________1" << std::endl;
+//		std::cout << "________1" << std::endl;
 		std::cout << "ERROR" << std::endl;
 	}
 	assignValue(token_stack.front(), result.getOperand()->getValue());
@@ -318,7 +356,6 @@ void				ExpertSystem::assignValues(const std::vector<Token> consequents, Token r
 
 t_status			ExpertSystem::resolveRule(const Rule &rule, std::vector<Operand *> &path, Operand &operand)
 {
-	std::cout << std::endl;
 	for (int i_tabs = 0; i_tabs < tabs; i_tabs++)
 		std::cout << "    ";
 	std::cout << "rule found : " << rule.getToString();
@@ -328,13 +365,23 @@ t_status			ExpertSystem::resolveRule(const Rule &rule, std::vector<Operand *> &p
 
 	for (int i_tabs = 0; i_tabs < tabs; i_tabs++)
 		std::cout << "    ";
-	std::cout << " so its equation is " << statusToString(result.getOperand()->getValue());
-	if (result.getOperand()->getValue() == FALSE || (result.getOperand()->getValue() == TRUE && result.getIsNegativeOperand() == true))
+	std::cout << " so the equation is " << statusToString(result.getOperand()->getValue()) << std::endl;
+
+//	if (result.getOperand()->getValue() == FALSE || (result.getOperand()->getValue() == TRUE && result.getIsNegativeOperand() == true))
+//	{
+//		std::cout << std::endl;
+////	return operand.getValue();
+//		return result.getOperand()->getValue();
+//	}
+	if (result.getOperand()->getValue())
 	{
-		return operand.getValue();
+		assignValues(rule.getAllConsequents(), result);
+		return TRUE;
 	}
-	assignValues(rule.getAllConsequents(), result);
-	return operand.getValue();
+	return NOT_RESOLVED;
+	std::cout << " so " << operand.getName() << " is " << statusToString(operand.getValue()) << std::endl;
+//	return operand.getValue();
+//	return result.getOperand()->getValue();
 }
 
 /*
@@ -352,18 +399,20 @@ t_status			ExpertSystem::resolveQuery(Operand &query, std::vector<Operand *> &pa
 	{
 		if ((*i)->getName() == query.getName())
 		{
-			std::cout << "We know that "<< query.getName() << " is " << statusToString((*i)->getValue()) << std::endl;
 			(*i)->setIsResolved(true);
-			return (*i)->getValue();
+			std::cout << "Already trying to resolve : " << query.getName() << " set to default value : FALSE" << std::endl;
+			return TRUE;
+//			return (*i)->getValue();
 		}
 	}
 
 	/*
-	**	If querying operand does not exist, return 
+	**	If querying operand has not implying relation (cf. subject)
 	**	SHOULD NEVER HAPPEN
 	*/
 	if (!(realOperand = findOperand(query.getName())))
 	{
+		std::cout << query.getName() << "cannot be solve for now" << std::endl;
 		return FALSE;
 	}
 
@@ -387,9 +436,9 @@ t_status			ExpertSystem::resolveQuery(Operand &query, std::vector<Operand *> &pa
 			{
 				realOperand->setValue(FALSE);
 			}
-			std::cout << " so " << realOperand->getName() << " is " << statusToString(realOperand->getValue()) << std::endl;
+			std::cout << " so " << realOperand->getName() << " default value is " << statusToString(realOperand->getValue()) << std::endl;
 		}
-		return FALSE;
+		return TRUE;
 	}
 
 	t_status result = realOperand->getIsResolved() ? realOperand->getValue() : NOT_RESOLVED;
@@ -402,27 +451,40 @@ t_status			ExpertSystem::resolveQuery(Operand &query, std::vector<Operand *> &pa
 	{
 //		std::cout << "Operand related : "<< realOperand->getName() << " in " << consequents[i].getToString();
 		tmp_result = resolveRule(consequents[i], path, *realOperand);
+//		std::cout << "results for operand : " << statusToString(result) << " && " << statusToString(tmp_result) << std::endl;
 		if (result == NOT_RESOLVED)
 		{
 			result = tmp_result;
 		}
-		else if (result != UNDEFINED && result != tmp_result)
+		else if (tmp_result == NOT_RESOLVED)
+		{
+			tmp_result = result;
+		}
+		if (realOperand->getValue() == ERROR)
 		{
 			std::cout << std::endl;
 			for (int i_tabs = 0; i_tabs < tabs; i_tabs++)
 				std::cout << "    ";
-			std::cout << "2 results for operand : " << statusToString(result) << " != " << statusToString(tmp_result) << std::endl;
-			realOperand->setValue(NOT_RESOLVED);
+			std::cout << realOperand->getName() << " cannot have 2 values." << std::endl;
 			return ERROR;
 		}
+//		else if (result != UNDEFINED && result != tmp_result)
+//		{
+//			std::cout << std::endl;
+//			for (int i_tabs = 0; i_tabs < tabs; i_tabs++)
+//				std::cout << "    ";
+//			std::cout << "2 results for operand : " << statusToString(result) << " != " << statusToString(tmp_result) << std::endl;
+//			return ERROR;
+//		}
 	}
 
-	std::cout << ", so "<< realOperand->getName() << " is " << statusToString(realOperand->getValue()) << std::endl;
-	return realOperand->getValue();
+	std::cout << realOperand->getName() << " is " << statusToString(realOperand->getValue()) << std::endl;
+	return TRUE;
 }
 
 void                ExpertSystem::resolveAllQueries()
 {
+	printRules();
 	/*
 	**  Call resolveQuery() on each query.
 	*/

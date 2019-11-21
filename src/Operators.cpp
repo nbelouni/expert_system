@@ -22,13 +22,12 @@ const char *            statusToString(t_status result)
 }
 
 /*
-**	if token (!= orepand) is negative
+**	if token (!= operand) is negative
 */
 t_status		getReverseValue(t_status value)
 {
 	return (value == NOT_RESOLVED) ? TRUE :
-           (value == FALSE) ? TRUE:
-           (value == TRUE) ? FALSE:
+           (value == ERROR) ? ERROR:
            (value == UNDEFINED) ? UNDEFINED :
            FALSE;
 }
@@ -38,13 +37,24 @@ t_status		getReverseValue(t_status value)
 */
 t_status		andOperator(Token const &first, Token const &second)
 {
-	bool first_value = first.getIsNegativeOperand() ? false : true;
-	bool second_value = second.getIsNegativeOperand() ? false : true;
+	if (first.getOperand()->getValue() == ERROR || second.getOperand()->getValue() == ERROR)
+		return ERROR;
+//	t_status tmp = getReverseValue(first.getOperand()->getValue());
+//	t_status first_value = first.getIsNegativeOperand() ? tmp : first.getOperand()->getValue();
+//
+//	tmp = getReverseValue(second.getOperand()->getValue());
+//	t_status second_value = second.getIsNegativeOperand() ? tmp : second.getOperand()->getValue();
 
-	if (first.getOperand()->getValue() == first_value && second.getOperand()->getValue() == second_value)
+	if (first.getOperand()->getValue() == UNDEFINED || second.getOperand()->getValue() == UNDEFINED)
+		return UNDEFINED;
+	if (first.getOperand()->getValue() == TRUE && second.getOperand()->getValue() == TRUE)
+	{
 		return TRUE;
+	}
 	else 
+	{
 		return FALSE;
+	}
 }
 
 t_status		orOperator(Token const &first, Token const &second)
@@ -52,17 +62,18 @@ t_status		orOperator(Token const &first, Token const &second)
 	bool first_value = first.getIsNegativeOperand() ? false: true;
 	bool second_value = second.getIsNegativeOperand() ? false: true;
 
-    //std::cout << "or operator" << std::endl;
-	if (first.getOperand()->getValue() == UNDEFINED && second.getOperand()->getValue() == UNDEFINED)
-		return UNDEFINED;
-	else if (first.getOperand()->getValue() == first_value || second.getOperand()->getValue() == second_value)
+	if (first.getOperand()->getValue() == ERROR || second.getOperand()->getValue() == ERROR)
+		return ERROR;
+	if ((first.getOperand()->getValue() == UNDEFINED && second.getOperand()->getValue() == second_value) ||
+		(second.getOperand()->getValue() == UNDEFINED && first.getOperand()->getValue() == first_value) ||
+	(first.getOperand()->getValue() == first_value || second.getOperand()->getValue() == second_value))
     {
-    //std::cout << "true" << std::endl;
 		return TRUE;
     }
+	else if (first.getOperand()->getValue() == UNDEFINED || second.getOperand()->getValue() == UNDEFINED)
+		return UNDEFINED;
 	else 
 	{
-    //std::cout << "false" << std::endl;
         return FALSE;
     }
 }
@@ -72,9 +83,13 @@ t_status		xorOperator(Token const &first, Token const &second)
 	bool first_value = first.getIsNegativeOperand() ? false: true;
 	bool second_value = second.getIsNegativeOperand() ? false: true;
 
-	if (first.getOperand()->getValue() == first_value && second.getOperand()->getValue() == (!second_value))
+	if (first.getOperand()->getValue() == ERROR || second.getOperand()->getValue() == ERROR)
+		return ERROR;
+	if (first.getOperand()->getValue() == UNDEFINED || second.getOperand()->getValue() == UNDEFINED)
+		return ERROR;
+	if (first.getOperand()->getValue() == first_value && second.getOperand()->getValue() != second_value)
 		return TRUE;
-	if (first.getOperand()->getValue() == (!first_value) && second.getOperand()->getValue() == second_value)
+	if (first.getOperand()->getValue() != first_value && second.getOperand()->getValue() == second_value)
 		return TRUE;
 	else 
 		return FALSE;
@@ -148,14 +163,11 @@ t_status        assignOr(Token const &first, Token const &second, t_status value
 
 void            assignValue(Token const &token, t_status value)
 {
-    t_status reverse_value = (value == NOT_RESOLVED) ? TRUE :
-                             (value == FALSE) ? TRUE:
-                             (value == TRUE) ? FALSE:
-                             (value == UNDEFINED) ? UNDEFINED :
-                             FALSE;
+    t_status reverse_value = getReverseValue(value);
 
-//	std::cout << "assignValue()" << std::endl;
     t_status tmp = token.getIsNegativeOperand() ? reverse_value : value;
+//	std::cout << "assignValue()" << std::endl;
+//	std::cout << "tmp : " << statusToString(tmp)<< std::endl;
     if (token.getOperand()->getIsResolved() && token.getOperand()->getValue() != tmp)
         token.getOperand()->setValue(ERROR);
     else
