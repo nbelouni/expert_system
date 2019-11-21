@@ -124,6 +124,23 @@ void		LexerParser::printLexedFile()
 	}
 }
 
+int			myFuckingCompare(const char *line, const char *lexem, size_t i)
+{
+	if (i + std::strlen(lexem) >= std::strlen(line))
+		return -1;
+	size_t j = 0;
+	if (!line || !lexem)
+		return -1;
+	while (i < std::strlen(line) && j < std::strlen(lexem))
+	{
+		if (line[i] != lexem[j])
+			return -1;
+		i++;
+		j++;
+	}
+	return 0;
+}
+
 void		LexerParser::Lexer(char const *fileName)
 {
 	try
@@ -138,6 +155,7 @@ void		LexerParser::Lexer(char const *fileName)
 			close(fd);
 
 		std::ifstream	file(fileName);
+		std::string		buffer;
 		std::string		line;
 
 		if (file && file.is_open())
@@ -146,37 +164,53 @@ void		LexerParser::Lexer(char const *fileName)
 			size_t i = 0;
 			int j = 0;
 			int lexem_length;
-			while (std::getline(file, line))
+			while (std::getline(file, buffer))
 			{
-				line = std::regex_replace(line, std::regex("([	 ]+)"), "");
+				line = std::regex_replace(buffer, std::regex("([	 ]+)"), "");
 
 				i = 0;
 				while (i < line.size())
 				{
-					if (line[i] == *_lexem[COMMENT].value.c_str() || line[i] == 0)
+					std::cout << line[i];
+					if (line.size() <= i || line[i] == 0 || line[i] == _lexem[COMMENT].value[0])
 						break;
 					for (j = 1; j < 12; j++)
 					{
 						lexem_length = (j == OPERAND) ? 1 : _lexem[j].value.length();
-		
-						if (i + lexem_length <= line.size() && (!std::strncmp(line.c_str() + i, _lexem[j].value.c_str(), lexem_length) || (j == OPERAND && line[i] >= 'A' && line[i] <= 'Z')))
+						if ((i < line.size() && j == OPERAND && line[i] >= 'A' && line[i] <= 'Z'))
 						{
-							std::string str(line.c_str() + i, 0, lexem_length);
+							if (i >= line.size())
+								std::cout << "1 " << std::to_string(line.size()) << " >= " << std::to_string(i) << std::endl;
+							std::string str(line.c_str() + i, 0, 1);
 							std::pair<std::string, t_lexem>	tmp(str, static_cast<t_lexem>(j));
 							_lexedFile.push_back(tmp);
 							i += lexem_length;
 
 							break;
 						}
+						else if (i + (lexem_length) < line.size())
+						{
+							if (!myFuckingCompare(line.c_str(), _lexem[j].value.c_str(), i))
+							{
+								if (i + lexem_length >= line.size())
+									std::cout << "2 " << std::to_string(line.size()) << " >= " << std::to_string(i + lexem_length) << std::endl;
+								std::string str(line.c_str() + i, 0, lexem_length);
+								std::pair<std::string, t_lexem>	tmp(str, static_cast<t_lexem>(j));
+								_lexedFile.push_back(tmp);
+								i += lexem_length;
+
+								break;
+							}
+						}
 					}
 					if (j == 12)
 					{
-						if (i <= line.size())
+						if (i < line.size())
 						{
 							std::string error("Syntax error: line ");
 							error.append(std::to_string(line_index));
 							error.append(": ");
-							error.append(&(line.c_str()[i]), 1);
+							error += line[i];
 							error.append(" unknown.");
 							addExceptionMessage(error);
 							error.clear();
@@ -184,8 +218,11 @@ void		LexerParser::Lexer(char const *fileName)
 						i++;
 					}
 				}
-				std::pair<std::string, e_lexem>	tmp("", ENDL);
-				_lexedFile.push_back(tmp);
+				if (i > 0)
+				{
+					std::pair<std::string, e_lexem>	tmp("", ENDL);
+					_lexedFile.push_back(tmp);
+				}
 				line_index++;
 			}
 			file.close();
@@ -474,7 +511,6 @@ ExpertSystem	*LexerParser::Parser()
         
 		nextLexem = findNextLexem(i + 1);
        
-		std::cout <<  i->first << std::endl;
 		_error = "Unexpected token : line " + std::to_string(nLines) + " : " + i->first + " " + printLexemValue(nextLexem);
 		_factsAndQueriesError = "Unexpected token : line " + std::to_string(nLines) + " : facts and queries can only contain letters.";
         
