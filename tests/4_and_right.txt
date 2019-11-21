@@ -1,0 +1,13 @@
+A => B + C
+C => D + !E
+H => F + !G
+=A
+?ABCDEFGH
+# A in facts : true
+# B resolved : true
+# C resolved : true
+# D resolved : true
+# E resolved : false
+# F resolved : false
+# G resolved : false
+# H default : false

@@ -1,0 +1,16 @@
+A + B => C
+A + !B => D
+A + B => !F
+!F + !C => G
+A + B + D => H
+A + B + !D => J
+=AB
+?ABCDFGHJ
+# A in facts : true
+# B in facts : true
+# C assigned : true
+# D assigned : false
+# F assigned : false
+# G assigned : false
+# H assigned : false
+# J assigned : true

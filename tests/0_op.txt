@@ -1,0 +1,14 @@
+A => B
+!C => D
+D => E
+A => !F
+C => G
+=A
+?ABCDEFG
+# A defined in facts : true
+# B assigned true 
+# C default : false
+# D assigned true
+# E assigned assigned true
+# F assigned false
+# G default : false

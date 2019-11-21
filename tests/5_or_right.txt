@@ -1,0 +1,16 @@
+A => B | C
+C => D | !E
+H => F | !G
+A | B => G
+H | B => J
+=A
+?ABCDEFGHJ
+# A in facts : true
+# B resolved : undefined
+# C resolved : undefined
+# D resolved : undefined
+# E resolved : undefined
+# F resolved : false
+# G resolved : true
+# H default : false
+# J resolved : undefined
